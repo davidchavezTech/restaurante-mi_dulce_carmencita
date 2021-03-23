@@ -1,0 +1,27 @@
+{
+  "name": "repositorio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src --ext js,hbs --ignore public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidsaso1234/erik-restaurante.git"
+  },
+  "author": "David Chavez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davidsaso1234/erik-restaurante/issues"
+  },
+  "homepage": "https://github.com/davidsaso1234/erik-restaurante#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "connect-livereload": "^0.6.1",
+    "livereload": "^0.9.3",
+    "nodemon": "^2.0.7"
+  }
+}
