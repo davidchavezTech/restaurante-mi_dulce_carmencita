@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/davidsaso1234/erik-restaurante#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-handlebars": "^5.2.1",
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
     "connect-livereload": "^0.6.1",

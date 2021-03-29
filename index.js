@@ -3,6 +3,7 @@ const app = express();
 const path = require('path');
 const livereload = require('livereload')
 const connectLiveReload = require('connect-livereload')
+const hbs = require('express-handlebars');
 
 const publicDirectory = path.join(__dirname, 'public')
 
@@ -13,15 +14,18 @@ liveReloadServer.server.once("connection",()=>{
         liveReloadServer.refresh("/");
     }, 100);
 })
+
+//view engine setup
+app.engine('hbs', hbs({extname: 'hbs', defaultLayout: 'layout', layoutsDir: __dirname + '/views/layouts/'}))
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'hbs')
+
+
 app.use(connectLiveReload());
 const PORT = process.env.PORT || 4000;
 
 //set static folder
 app.use(express.static(publicDirectory))
-
-app.get('/', (req, res) => {
-    res.render('index');
-});
 
 app.use(require('./routes/routes'));
 
