@@ -1,15 +1,27 @@
-session = JSON.parse(session)
-console.log(session)
-$.post('/inicio', {permission:session.set_permission}).done(( data ) => {
-    if(session.set_permission=='e3h45'){
-        $('#admin_tbody').append(data)
+const data = {
+    url: window.location.href,
+    type: 'POST',
+    contentType: 'application/json',
+    headers: {
+        'Authorization': 'Bearer '+localStorageToken.accessToken
+    },
+}
 
-        $('#admin_table').DataTable({
-            "search": {
-                "smart": false
+$.post('/inicio', data).done(( data ) => {
+        console.log(data)
+        if(data.permission=='admin'){
+            let theadRow = $('#main_thead-tr')
+            for(let i=0;data.headers.length>i;i++){
+                let th = document.createElement('th')
+                th.textContent = data.headers[i]
+                theadRow.append(th)
             }
-            });
+            $('#main_tbody').append(data.html)
+            $('#main_table').DataTable({
+                "search": {
+                    "smart": false
+                }
+            })
+        }
 
-    }
-    console.log(data)
-});
+})

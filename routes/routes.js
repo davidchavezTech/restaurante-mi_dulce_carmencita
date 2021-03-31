@@ -1,15 +1,18 @@
+require('dotenv').config()
+
 const express = require('express');
 let router = express.Router();
+const bcrypt = require('bcrypt')
 const path = require('path');
 const pool = require('../database')
 const publicDirectory = path.join(__dirname, '../public')
+const jwt = require('jsonwebtoken')
 
 //Nos permite ver la info del formulario que se envió por <form></form>
 router.use(express.urlencoded({ extended: true}));
 
 router.get('/', async (req, res) => {
-    // let result = await pool.query('SELECT * FROM categories');
-    // console.log(result)
+
     res.render('loguearse', {title: 'Loguearse'});
     
 });
@@ -21,21 +24,34 @@ router.get('/inicio', async (req, res) => {
 
 router.post('/login', async (req, res, next) => {
 
-    
-    let result = await pool.query(`SELECT * FROM usuarios WHERE email = '${req.body.email}' AND pwd = '${req.body.password}'`);
-    console.log(result[0])
-    if(result[0]){
-        res.json(result[0])
+    const foundUser = await pool.query(`SELECT * FROM usuarios WHERE email = '${req.body.email}'`);
+    const foundUsersEmail = foundUser[0].email
+    const setPermission = foundUser[0].set_permission
+    const foundUserspassword = foundUser[0].pwd
+    if(foundUser){
+        try{
+            if(await bcrypt.compare(req.body.password, foundUserspassword)){
+                
+                //create the user object
+                const user =  {email: foundUsersEmail,
+                                permission: setPermission}
+
+                const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
+                res.json({ accessToken: accessToken})
+            }else{
+                res.json('Not allowed')
+            }
+        }catch(error) {
+            console.error(error);
+          }
     }else{
-        res.json('wrong')
+        res.json('Not allowed')
     }
-    
-    // console.log(res)
 })
 
-router.post('/inicio', async (req, res, next) => {
+router.post('/inicio', isUserLoggedIn, async (req, res, next) => {
     
-    if(req.body.permission=='e3h45'){
+    if(req.user.permission=='e3h45'){
         let result = await pool.query(`SELECT * FROM usuarios`);
         let html = ''
         result.forEach(usuario =>{
@@ -55,7 +71,7 @@ router.post('/inicio', async (req, res, next) => {
                     break
             }
             html = html + `<tr>
-                            <td>${usuario.id}</td>
+                            <td scope="row">${usuario.id}</td>
                             <td>${usuario.names}</td>
                             <td>${usuario.email}</td>
                             <td>${role}</td>
@@ -63,10 +79,43 @@ router.post('/inicio', async (req, res, next) => {
                           </tr>
                             `
         })
-        
-        res.json(html)
-    }
+        const headers = ['id', 'Nombres','Correo','Posición','']
+        const responseObject = {
+            permission: 'admin',
+            headers,
+            html
+        } 
+        res.json(responseObject)
+    }else if(req.user.permission=='j5464'){
     
+    
+    }
 })
 
+router.post('/authenticate', isUserLoggedIn, (req, res) => {
+    res.json('Correct JWT')
+})
+
+function isUserLoggedIn(req, res, next){
+    const authHeader = req.body.headers.Authorization
+    const token = authHeader && authHeader.split(' ')[1]
+    if(token == null) return res.sendStatus(401)
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) =>{
+        if (err) return res.send('Wrong token')
+        req.user = user
+        next()
+    })
+}
+function authenticateToken(req, res, next){
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if(token == null) return res.sendStatus(401)
+
+    // jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) =>{
+    //     if (err) return res.sendStatus(403)
+    //     req.user = user
+    //     next()
+    // })
+}
 module.exports = router;
