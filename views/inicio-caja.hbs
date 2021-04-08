@@ -1,0 +1,149 @@
+<h1>Órdenes:</h1>
+
+<div id="ordenes_container">
+    <div class="card col-5 ordenes-card">
+        <div class="card-body no-events">
+            <h2 id="1" class="mesa_identifier">Mesa #01</h2>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>cant.</th>
+                        <th>P.Unitario</th>
+                        <th>Cancelado</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo_de_table">
+                    <tr>
+                        <td>Pachamanca</td>
+                        <td>2</td>
+                        <td>30</td>
+                        <td>
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        </td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td>Pachamanca</td>
+                        <td>2</td>
+                        <td>30</td>
+                        <td>
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        </td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td>Pachamanca</td>
+                        <td>2</td>
+                        <td>30</td>
+                        <td>
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        </td>
+                        <td>60</td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <h2 style="display:inline-block">Total:&nbsp</h2><h2 id="precio_total_de_orden" style="display:inline-block">180.00</h2>
+        </div>
+        <div style="position: absolute;top:25px;right:15px;">
+            <div class="mb-12 row">
+                <div class="col-sm-12">
+                    <h4 style="display:inline-block;">Cancelar todo:&nbsp&nbsp</h4><input id="cancelar_whole_orden" type="checkbox" style="display:inline-block;" value="" >
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<div class="slide-pago">
+
+    <div class="floating_card">
+        <div class="card">
+            <div class="card-body">
+                <h2 style="display:inline-block">Número de Mesa:&nbsp&nbsp&nbsp</h2><input id="checkout_card-numero_de_mesa" type="number" style="width: 60px;font-size:30px;">
+                <br>
+                <p id="no_se_pudo_encontrar_esa_mesa" style="color:red;display:none;">No se pudo encontrar esa mesa</p>
+                <br>
+                <div id="pagar_inputs">
+                    <div class="mb-3 row">
+                        <label for="inputPassword" class="col-sm-3 col-form-label">Efectivo</label>
+                        <div class="col-sm-3">
+                            <input type="number" class="form-control" id="efectivo">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputPassword" class="col-sm-3 col-form-label">Tarjeta</label>
+                        <div class="col-sm-3">
+                            <input type="number" class="form-control" id="tarjeta">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputPassword" class="col-sm-3 col-form-label">Yape</label>
+                        <div class="col-sm-3">
+                            <input type="number" class="form-control" id="yape">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <h2><span id="falta_o_sobra">Faltan:&nbsp</span><span id="checkout_card-precio_total">0</span></h2>
+                </div>
+                <div class="mb-3 row">
+                    <button id="send_paid_order-btn" type="button" class="btn btn-success">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+<br>
+<br>
+<br>
+
+<div class='toast-positioning'>
+    <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" style="margin-right:80px">
+        <div class="d-flex">
+            <div class="toast-body">
+            Escoger número de mesa
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div id="admin_permission-cancelar_plato" class="modal">
+
+    <!-- Modal content -->
+    <div class="custom-modal-content" style="width:545px">
+        <h1>Confirmación por administrador</h1>
+        <h4>¿Cancelar <span id='cancelar_confirm-cantidad' style="color:green"></span> <span id='cancelar_confirm-nombre'></span> de la mesa <span id='cancelar_confirm-orden_mesa' style="color:crimson"></span>?</h4>
+        <div class="mb-3">
+            <label class="form-label">Correo electrónico</label>
+            <input id='cancelar-admin_email' type="email" class="form-control" placeholder="micorreo@ejemplo.com" style="width:235px">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Contraseña</label>
+            <input id='cancelar-admin_password' type="password" class="form-control" placeholder="contraseña" style="width:235px">
+        </div>
+        <p id="admin_confirm_error" style="color:red" class="hidden">Error</p>
+        <button id="confirm-cancelar_plato" class='btn btn-success'>Confirmar</button>
+        <button id="cancel-cancelar_plato" class='btn btn-secondary'>No, cancelar</button>
+    </div>
+
+</div>
+
+<script src="js/socket.io.js"></script>
+<script>
+        var socket = io();
+</script>
+
+<script src="js/bootstrap.bundle.min.js"></script>
+<script src="js/caja.js"></script>
+

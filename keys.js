@@ -6,11 +6,11 @@ module.exports = {
         password: '',
         database: 'restaurante-mi_carmencita'
     },
-    // likes_db: {
-    //     host: 'localhost',
-    //     user: 'root',
-    //     password: '',
-    //     database: 'likes_db'
-    // }
+    ordenes_DDBB: {
+        host: 'localhost',
+        user: 'root',
+        password: '',
+        database: 'ordenes'
+    }
     
 }

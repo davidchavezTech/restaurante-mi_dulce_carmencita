@@ -11,11 +11,11 @@ $('form').on('submit', (e) =>{
 
     $.post('/login', data).done(( data ) => {
         console.log(data)
-        if(data=='Not allowed'){
+        if(data==false){
             $('#error-message').html('Error, favor de intentar de nuevo')
         }else{
             localStorage.setItem('JWT', JSON.stringify(data));
-            window.location.href="http://localhost:4000/inicio";
+            window.location.href=data.url;
         }
     });
 })

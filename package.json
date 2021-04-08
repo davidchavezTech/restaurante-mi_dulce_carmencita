@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src --ext js,hbs --ignore public"
+    "dev": "nodemon src --ext js,hbs --ignore public",
+    "debug": "nodemon src --ext js,hbs --ignore public --inspect index.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,8 @@
     "express": "^4.17.1",
     "express-handlebars": "^5.2.1",
     "jsonwebtoken": "^8.5.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "socket.io": "^4.0.1"
   },
   "devDependencies": {
     "connect-livereload": "^0.6.1",

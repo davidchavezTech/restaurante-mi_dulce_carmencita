@@ -7,12 +7,24 @@
     <title>{{ title }}</title>
     <script src="js/jquery.min.js" crossorigin="anonymous"></script>
     <link href="css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="./css/main.css" rel="stylesheet" type="text/css">
     <script src="js/main.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/datatable.css" type="text/css">
-    <link href="./css/main.css" rel="stylesheet" type="text/css">
 </head>
 <body>
     {{{ body }}}
+
+
+    <div id="error-modal_error_display" class="modal">
+
+        <!-- Modal content -->
+        <div class="custom-modal-content">
+            <h1 style='color:red'>Error</h1>
+            <p id='error-msg'></p>
+            <button id="error-accept_btn" class='btn btn-secondary'>Ok</button>
+        </div>
+
+    </div>
     <script src="js/dataTable.js"></script>
 </body>
 </html>

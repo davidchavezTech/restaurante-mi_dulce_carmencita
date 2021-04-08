@@ -1,3 +1,7 @@
+body{
+    position: relative;
+    min-height: 100vh;
+}
 .bg{
     background: rgb(28,94,213);
     background: linear-gradient(90deg, rgba(28,94,213,1) 0%, rgba(0,212,255,1) 100%);
@@ -10,4 +14,175 @@
     box-shadow: 0px 0px 10px 0 rgba(0, 0, 0, 0.5);
 }#error-message{
     color:red;
+}.hidden{
+    display:none;
+}.text-align-center{
+    text-align:center;
+}.horizontal-div{
+    font-size:0;
+    margin:0;
+    width: 100vw;
+    height: 80px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}.category:nth-child(odd){
+    background-color: #ff6338
+}.category:nth-child(even){
+    background-color: #fcc214
+}.category{
+    vertical-align: middle;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size:15px;
+    width:100px;
+    height: 100%;
+}.comida-ico{
+    width:50px;
+}.jugo-ico{
+    width:30px;
+}.bebidas-ico{
+    width:23px;
+}.mariscos-ico{
+    width:50px;
+}tr:nth-child(even){
+    background-color: #e3fffa;
+}.color-thead{
+    background-color: #ffbe4f;
+}tr{
+    height:55px;
+}.nueva_comanda{
+    color:#496891;    
+    margin: 10px 15px;
+    text-align: center;
+    background-color: #e3fffa;
+    border: dashed 2px #6aaafc; 
+    border-radius: 40px;
+    padding: 10px 0;
+}.comanda-title{
+    color:#0f5c14;
+    width:90vw;
+    padding:3px 17px 3px 17px;
+    border-radius: 50px;
+    background-color: #7cff6e;
+    border:solid 2px #0f5c14;
+    margin-left:auto;
+    margin-right:auto;
+}.expand_arrow{
+    width:22px
+}.comanda-title{
+    display: flex;
+    justify-content: space-between;
+}.comanda_table{
+    width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
+}.comanda-row{
+    height:26px;
+    /* background-color: #fff; */
+}.spacer{
+    height:30px;
+}.comanda-info{
+    position: relative;
+    margin-bottom:25px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}.no_pointer_events{
+    pointer-events: none;
+}.new_element_added{
+    animation-name: new_element_added;
+    animation-duration: .4s;
+    animation-delay: 0s;
+}
+@keyframes new_element_added {
+    0%   {background-color:#9ac4fc; border:solid 2px #5b8fd4;}
+    50%  {background-color:#fcf112; border:solid 2px #c4c704;}
+    100%   {background-color:#9ac4fc; border:solid 2px #5b8fd4;}
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+  
+.custom-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+  
+.close {
+    transform: translateY(-15px);
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+  
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+  /* ------------------ */
+.accept_mesa{
+    width: 50px
+}.trashcan{
+    width: 42px;
+    margin-right: 37px;
+}.check{
+    margin-right: 16px;
+    width: 52px;
+}.space-between{
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}.precio_total{
+    font-size: 29px;
+}.total-container{
+    margin-left: 23px;
+}
+/* ------caja----- */
+.ordenes-card{
+    margin-left:40px;
+    margin-top:20px;
+    position:relative;
+}.card-selected{
+    border:solid 3px orange;
+}.slide-pago{
+    position: fixed;
+    top:15px;
+    width: 100vw;
+}.floating_card{
+    position:absolute;
+    right: 22vw;
+    width: 390px;
+}h2{
+    display: inline-block;
+}.no-events{
+    pointer-events: none;
+}.toast-positioning{
+    position: fixed;
+    bottom:40px;
+    display:flex;
+    justify-content: flex-end;
+    width: 100vw;
+}.form-check-input{
+    pointer-events: auto;
+}.gray-out{
+    background-color: #aaa;
 }

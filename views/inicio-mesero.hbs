@@ -1,0 +1,111 @@
+<div class="horizontal-div">
+    {{!-- <div class="horizontal-div row justify-content-md-center"> --}}
+        <div class="category" id='cat-1'>
+            <img src="img/food-icon.svg" class="comida-ico no_pointer_events" alt="">
+        </div>
+        <div class="category" id='cat-2'>
+            <img src="img/mariscos-icon.svg" class="mariscos-ico no_pointer_events" alt="">
+        </div>
+        <div class="category" id='cat-3'>
+            <img src="img/bebidas-icon.svg" class="bebidas-ico no_pointer_events" alt="">
+        </div>
+        <div class="category" id='cat-4'>
+            <img src="img/jugo-icon.svg" class="jugo-ico no_pointer_events" alt="">
+        </div>
+        <div class="category" id='cat-'>
+            <span>categoría<br>ejemplo</span>
+        </div>
+        <div class="category" id='cat-'>
+            <span>categoría<br>ejemplo</span>
+        </div>
+    {{!-- </div> --}}
+</div>
+<br>
+<div id="comanda-selected"></div>
+<div class="row justify-content-center">
+    <div class="col-12">
+        <table id="main_table" class="table table-borderless cell-border hover order-column row-border stripe ">
+            <thead id="main_thead"><tr id="main_thead-tr"></tr></thead>
+            <tbody id="main_tbody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="nueva_comanda">Agregar Comanda</div>
+
+<div id="comanda_container">
+    {{!-- <div id='1' class="mesa_container">
+        <div class="comanda-title">
+            <span id="mesa">Mesa #01</span>
+            <img src="img/expand_arrow.svg" class="expand_arrow">
+        </div>
+        <div class="comanda-info">
+            <table class="comanda_table">
+                <thead class="color-thead">
+                    <tr class="comanda-row">
+                        <th class="hidden">id</th>
+                        <th>Producto</th>
+                        <th>cantidad</th>
+                        <th class="text-align-center">Precio</th>
+                        <th class="hidden">Categoría</th>
+                        <th class="hidden">stock</th>
+                    </tr>
+                </thead>
+                <tbody id="main_tbody"> 
+                </tbody>
+            </table>
+            <div class="space-between">
+                <div class="total-container">
+                    <h1 style="display:inline-block">Total:&nbsp&nbsp </h1><span id="precio_total"></span>
+                </div>
+                <div>
+                    <img src="img/check.svg" class="check" alt="">
+                    <img src="img/delete.svg" class="trashcan" alt="">
+                </div>
+            </div>    
+        </div>
+    </div> --}}
+</div>
+<div class="spacer"></div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content">
+    <span class="close">&times;</span>
+    <p>Número de mesa:</p>
+    <input type="number">
+    <button class='btn btn-success' id='accept_mesa'>Ok</button>
+    <p class="error-mesa" style="color:red"></p>
+  </div>
+
+</div>
+
+<div id="delete-confirmation_modal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content">
+    <p>¿Seguro que desea eleminar esta mesa?</p>
+    <button id="confirm-mesa_delete" class='btn btn-danger'>eliminar</button>
+    <button id="cancel-mesa_delete" class='btn btn-secondary'>Cancelar</button>
+  </div>
+
+</div>
+
+<div id="send-confirmation_modal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content">
+    <h1>¿Todo Correcto?</h1>
+    <p>¿Enviar orden de la <span id='mesa_number'></span> a caja y a la cocina?</p>
+    <button id="confirm-mesa_send" class='btn btn-success'>Enviar</button>
+    <button id="cancel-mesa_send" class='btn btn-secondary'>Cancelar</button>
+  </div>
+
+</div>
+<script src="js/socket.io.js"></script>
+<script>
+        var socket = io();
+</script>
+<script src="js/inicio.js"></script>

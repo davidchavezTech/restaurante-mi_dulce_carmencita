@@ -1,7 +1,6 @@
 const localStorageToken = JSON.parse(localStorage.getItem('JWT'))
 
-let checkLocalStorage
-
+let checkLocalStorage, errorMsgTextContainer, errorModal, errrorAceptBtn
 
 //send user to login if no JWT in local storage AND not in loggin page
 if(window.location.href!='http://localhost:4000/' && !localStorageToken){
@@ -21,15 +20,17 @@ if(window.location.href!='http://localhost:4000/' && !localStorageToken){
             }
             //Authenticate user - send JWT from local storage and act depending on response
             $.post('/authenticate', data).done(( data ) => {
-                
-                if(data == 'Correct JWT'){//We have the correct token
+                // console.log(data)
+                if(data){//We have the correct token
                     if(window.location.href == 'http://localhost:4000/'){//if we are in homepage/login page, then send to dashboard, else, cont
-                    window.location.href='http://localhost:4000/inicio'
+                    console.log(data)
+                    window.location.href=data.url
                     }
-                }else{//wrong token, remove it from local storage and redirect to login page
-                    localStorage.removeItem('JWT');
-                    window.location.href == 'http://localhost:4000/';
                 }
+                // else{//wrong token, remove it from local storage and redirect to login page
+                //     localStorage.removeItem('JWT');
+                //     window.location.href == 'http://localhost:4000/';
+                // }
             });
         }
         
@@ -37,6 +38,18 @@ if(window.location.href!='http://localhost:4000/' && !localStorageToken){
 $(document).ready(function(){
     $('#log_out_button').click(function(){
         localStorage.removeItem('JWT')
-        window.location.href='http://mydataio.com/'
+        window.location.href='http://localhost:4000/'
+    })
+
+    errorModal = document.getElementById("error-modal_error_display");
+    errrorAceptBtn = document.getElementById("error-accept_btn");
+    errorMsgTextContainer= document.getElementById("error-msg");
+    errrorAceptBtn.addEventListener('click', ()=>{
+        errorModal.style.display = "none";
     })
 })
+function showError(errorMsg){
+    errorMsgTextContainer.textContent = errorMsg
+    errorModal.style.display = "block";
+    
+}
