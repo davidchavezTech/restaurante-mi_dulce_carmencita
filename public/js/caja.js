@@ -1,6 +1,7 @@
 // let ordenesContainer = document.querySelector('#ordenes')
 let cancelar_un_plato_o_todos
 let numero_de_mesa_input = document.querySelector('#checkout_card-numero_de_mesa')
+let modal_aperturarCaja = document.querySelector('#modal-aperturar_caja')
 let totalCheckout = document.querySelector('#checkout_card-precio_total')
 let pagar_inputs = document.querySelector('#pagar_inputs')
 let faltaContainer = document.querySelector('#falta_o_sobra')
@@ -28,19 +29,57 @@ send_paid_orderBtn.addEventListener('click',()=>{
         toasterElement.textContent = 'Monto insuficiente'
         return toastMesaEmpty.show()
     }
+    let findMesa = document.getElementById(numero_de_mesa_input.value)
+    let mesaName = findMesa.closest('.ordenes-card').getAttribute('mesa_name')
     let data = {
+        mesaName: mesaName,
         efectivo: efectivoInput.value,
         tarjeta: tarjetaInput.value,
         yape: yapeInput.value,
         url: window.location.href,
-                type: 'POST',
-                contentType: 'application/json',
-                headers: {
-                    'Authorization': 'Bearer '+localStorageToken.accessToken
-                },
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        },
     }
-    $.post('/caja-confirm_pedido', data).done(( data ) => {
-        console.log(data)
+    $.post('/caja-pay_pedido', data).done(( data ) => {
+        let cajaMoney = localStorage.getItem('cajaMoney')
+        if(cajaMoney) cajaMoney = parseFloat(cajaMoney, 2)
+        if(data==true){
+            let efectivoPayment = efectivoInput.value
+            if(efectivoPayment != ''){
+                efectivoPayment = parseFloat(efectivoPayment, 2)
+            }else{
+                efectivoPayment = 0
+            }
+            let tarjetaPayment = tarjetaInput.value
+            if(tarjetaPayment != ''){
+                tarjetaPayment = parseFloat(tarjetaPayment, 2)
+            }else{
+                tarjetaPayment = 0
+            }
+            let yapePayment = yapeInput.value
+            if(yapePayment != ''){
+                yapePayment = parseFloat(yapePayment, 2)
+            }else{
+                yapePayment = 0
+            }
+            let ammountPaid = efectivoPayment + tarjetaPayment + yapePayment
+            let currentTotal = totalCheckout.textContent
+            currentTotal = parseFloat(currentTotal, 2)
+            let newCajaMoney = ammountPaid - totalCheckout.textContent
+            cajaMoney = cajaMoney + newCajaMoney
+            localStorage.setItem('cajaMoney', cajaMoney)
+            findMesa.closest('.ordenes-card').style.display = 'none'
+            deselectCards()
+            numero_de_mesa_input.value = ''
+            efectivoInput.value = ''
+            tarjetaInput.value = ''
+            yapeInput.value = ''
+            totalCheckout.textContent = '0'
+
+        }
     })
 })
 let toastMesaEmpty = new bootstrap.Toast(toast, option)
@@ -259,9 +298,9 @@ pagarInputs.forEach(input=>{
     })
 })
 numero_de_mesa_input.addEventListener('keyup', (e)=> {
-
+    deselectCards()
     if(numero_de_mesa_input.value == ''){
-        deselectCards()
+        
         no_se_pudo_encontrar_esa_mesa_P.style.display = 'none'
         totalCheckout.textContent = 0
         return
@@ -343,6 +382,18 @@ function deselectCards(){
 }
 let ordenes_container = document.querySelector('#ordenes_container')
 function loadMesasDelDia(){
+    let data = {
+        url: window.location.href,
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        },
+    }
+    $.post('/esta_caja_abierta', data).done(( data ) => {
+        console.log(data)
+        if(!data) modal_aperturarCaja.style.display = 'block'
+    })
     $.post('/get_todays_orders').done(( data ) => {
         console.log(data)
         for(let i=0;data.length>i;i++){
@@ -422,4 +473,66 @@ function loadMesasDelDia(){
 }loadMesasDelDia()
 
 
+
+aperturarCajaConfirmBtn = document.querySelector('#confirm-aperturar_caja')
+aperturarCajaInput = document.querySelector('#aperturar_caja-input')
+aperturarCajaError = document.querySelector('#aperturar_caja-error')
+
+aperturarCajaConfirmBtn.addEventListener('click', ()=>{
+    if(!(aperturarCajaInput.value)){
+        aperturarCajaError.style.display="block"
+        return
+    }
+    let monto = aperturarCajaInput.value
+    monto = parseFloat(monto)
+    if(!(monto>=0)){
+        aperturarCajaError.style.display="block"
+        return
+    }
+    // (aperturarCajaInput.value) ? localStorage.setItem('cajaMoney', aperturarCajaInput.value) : localStorage.setItem(0)
+    let data = {
+        url: window.location.href,
+        montoAperturarCaja: monto,
+        type: 'POST',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        },
+    }
+    $.post('/caja-aperturar_caja', data).done(( data ) => {
+        if(data==true){
+            modal_aperturarCaja.style.display='none'
+        }else{
+            document.querySelector('#aperturar_caja-connection_error').style.display='block'
+        }
+    })
     
+})
+
+let modalCerrarCaja = document.getElementById('modal-cerrar_caja')
+let montoParaCerrarCajaH4element = document.getElementById('cerrar_caja-monto')
+let confirmCerrarCaja = document.getElementById('confirm-cerrar_caja')
+
+modalCerrarCajaBtn = document.getElementById('modal-cerrarCaja_button')
+
+modalCerrarCajaBtn.addEventListener('click', ()=>{
+    montoParaCerrarCajaH4element.textContent = localStorage.getItem('cajaMoney')
+    modalCerrarCaja.style.display='block'
+})
+
+//cerramos caja y nos deslogueamos
+confirmCerrarCaja.addEventListener('click', ()=>{
+    let data = {
+        url: window.location.href,
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        },
+        monto: localStorage.getItem('cajaMoney')
+    }
+    $.post('/esta_caja_abierta', data).done(( data ) => {
+        console.log(data)
+    })
+    localStorage.removeItem('JWT')
+    window.location.href='http://localhost:4000/'
+})

@@ -101,7 +101,16 @@ body{
     50%  {background-color:#fcf112; border:solid 2px #c4c704;}
     100%   {background-color:#9ac4fc; border:solid 2px #5b8fd4;}
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */

@@ -5,9 +5,10 @@ let router = express.Router();
 const bcrypt = require('bcrypt')
 const path = require('path');
 const pool = require('../database')
-const publicDirectory = path.join(__dirname, '../public')
 const jwt = require('jsonwebtoken')
-
+const postToOrdersModel = require('../model/postToOrdenes')
+const userModel = require('../model/userModel')
+const cajaModel = require('../model/cajaModel')
 
 let authorizedURLsForMesero = [
     'http://localhost:4000/inicio-mesero',
@@ -47,7 +48,8 @@ router.get('/inicio-mesero', async (req, res) => {
 
 router.post('/login', async (req, res, next) => {
 
-    const foundUser = await pool.pool.query(`SELECT * FROM usuarios WHERE email = '${req.body.email}'`);
+    // const foundUser = await pool.restaurante.query(`SELECT * FROM usuarios WHERE email = '${req.body.email}'`);
+    const foundUser = await userModel.findUser(res, req.body.email)
     
     if(foundUser){
         const foundUsersEmail = foundUser[0].email
@@ -57,15 +59,12 @@ router.post('/login', async (req, res, next) => {
             if(await bcrypt.compare(req.body.password, foundUserspassword)){
                 if(setPermission=='mesero') url='http://localhost:4000/inicio-mesero'
                 if(setPermission=='caja') url='http://localhost:4000/inicio-caja'
-                console.log(foundUser[0])
-                console.log(foundUser[0].names)
                 //create the user object
                 const user = {
                                 email: foundUsersEmail,
                                 permission: setPermission,
                                 nombre: foundUser[0].names
                             }
-                
                 const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
                 res.json({ accessToken: accessToken,
                             url})
@@ -84,7 +83,7 @@ router.post('/inicio', isUserLoggedIn, async (req, res) => {
     let responseObject = ''
     let html = ''
     if(req.user.permission=='admin'){
-        let result = await pool.pool.query(`SELECT * FROM usuarios`);
+        let result = await pool.restaurante.query(`SELECT * FROM usuarios`);
         result.forEach(usuario =>{
             let role
             switch (usuario.set_permission) {
@@ -118,10 +117,8 @@ router.post('/inicio', isUserLoggedIn, async (req, res) => {
         } 
         
     }else if(req.user.permission=='mesero'){
-        let result = await pool.pool.query(`SELECT * FROM productos`);
-        // console.log(result)
+        let result = await pool.restaurante.query(`SELECT * FROM productos`);
         result.forEach(producto =>{
-            // console.log(producto)
             html = html + ` <tr id="orden">
                                 <td class="hidden">${producto.id}</td>
                                 <td style="padding-top:15px;">${producto.nombre_producto}</td>
@@ -143,7 +140,7 @@ router.post('/inicio', isUserLoggedIn, async (req, res) => {
 
 router.post('/inicio-mesero', isUserLoggedIn, async (req, res) => {
     let html = ''
-    let result = await pool.pool.query(`SELECT * FROM productos`);
+    let result = await pool.restaurante.query(`SELECT * FROM productos`);
     result.forEach(producto =>{
         html = html + ` <tr id="orden">
                             <td class="hidden">${producto.id}</td>
@@ -155,7 +152,6 @@ router.post('/inicio-mesero', isUserLoggedIn, async (req, res) => {
                         </tr>`
     })
     const headers = ['id', 'Producto','cantidad','Precio','Categoría', 'stock']
-    console.log(req.user)
     responseObject = {
         nombres: req.user.nombre,
         headers,
@@ -170,7 +166,6 @@ router.post('/authenticate', isUserLoggedIn, (req, res) => {
 
 router.post('/post_orden', async (req,res)=>{
     let data = req.body.data
-    console.log(req.body)
     
     // data = [
     //     {
@@ -201,7 +196,6 @@ router.post('/post_orden', async (req,res)=>{
 
     //CREAR MESA
     let numberOfTables = await pool.pool_ordenes.query(`SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'ordenes' and TABLE_TYPE='BASE TABLE'`);
-    console.log(numberOfTables[0]['COUNT(*)'])
     numberOfTables = numberOfTables[0]['COUNT(*)']
     let d = new Date();
     let day = d.getDate()
@@ -209,7 +203,6 @@ router.post('/post_orden', async (req,res)=>{
     let year = d.getFullYear()
     let currentDate  =  `${day}_${month}_${year}`
     let id = numberOfTables + 1
-    // console.log(`${data[0].nombre_producto+','+data[0].total}`)
     await pool.pool_ordenes.query(`
         CREATE TABLE IF NOT EXISTS ${currentDate+'_'+id} (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -221,9 +214,9 @@ router.post('/post_orden', async (req,res)=>{
             mesero VARCHAR(255),
             cajero VARCHAR(255),
             procesada TINYINT DEFAULT 0,
-            efectivo,
-            tarjeta,
-            yape,
+            efectivo TINYINT,
+            tarjeta TINYINT,
+            yape TINYINT,
             mesa TINYINT DEFAULT 0,
             total TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -258,7 +251,7 @@ router.post('/get_todays_orders', async (req,res)=>{
     let day = d.getDate()
     let month = d.getMonth()
     let year = d.getFullYear()
-    let currentDate  =  `${day}_${month}_${year}`
+    currentDate  =  `${day}_${month}_${year}`
     //get all the tables with the name of todays date--
     let result = await pool.pool_ordenes.query(`SELECT * FROM INFORMATION_SCHEMA.TABLES
     WHERE TABLE_NAME LIKE '${currentDate}%'`)
@@ -269,7 +262,6 @@ router.post('/get_todays_orders', async (req,res)=>{
         let atencion = []
         let tableName = result[i].TABLE_NAME
         const currentTable = await pool.pool_ordenes.query(`SELECT * FROM ${tableName}`);
-        // console.log(currentTable)
         if(currentTable[0].procesada==0){
             for(let i=0;currentTable.length>i;i++){
                 let dataToPush = {}
@@ -287,17 +279,14 @@ router.post('/get_todays_orders', async (req,res)=>{
     res.json(dataToSend)
 })
 router.post('/admin-cancelar_plato', async (req, res)=>{
-    console.log(req.body)
     let cancelada_pagada
     (req.body.isItChecked=='true') ? cancelada_pagada = 1: cancelada_pagada = 0
-    const foundUser = await pool.pool.query(`SELECT * FROM usuarios WHERE email = '${req.body.email}'`);
-    console.log(foundUser)
+    const foundUser = await pool.restaurante.query(`SELECT * FROM usuarios WHERE email = '${req.body.email}'`);
     if(foundUser.length!=0){
         const setPermission = foundUser[0].set_permission
         const foundUserspassword = foundUser[0].pwd
         try{
             if(await bcrypt.compare(req.body.password, foundUserspassword)&&setPermission=="admin"){
-                console.log(foundUser[0].names)
                 let admin = foundUser[0].names
                 let plato = req.body.plato
                 let mesaName = req.body.mesaName
@@ -309,7 +298,6 @@ router.post('/admin-cancelar_plato', async (req, res)=>{
             }
 
         }catch(error) {
-            console.log(error)
             res.json(false)
         }
     }else{
@@ -317,20 +305,43 @@ router.post('/admin-cancelar_plato', async (req, res)=>{
     }
 })
 
-router.post('/caja-confirm_pedido', isUserLoggedIn, async (req, res)=>{
-    console.log(req.user.nombre)
+router.post('/caja-pay_pedido', isUserLoggedIn, async (req, res)=>{
+    postToOrdersModel.postPayment(res, req.body, req.user.nombre)
+})
+router.post('/caja-cerrar_caja', isUserLoggedIn, async (req, res)=>{
+    let d = new Date();
+    let day = d.getDate()
+    let month = d.getMonth() + 1
+    if(month<10) month = "0" + month
+    let year = d.getFullYear()
+    let currentDate  =  `${year}-${month}-${day}`
+    cajaModel.cerrar(res, req.user.nombre, currentDate, req.body.monto, next())
+})
+
+router.post('/esta_caja_abierta', isUserLoggedIn, async (req,res)=>{
+    let d = new Date();
+    let day = d.getDate()
+    let month = d.getMonth() + 1
+    if(month<10) month = "0" + month
+    let year = d.getFullYear()
+    let currentDate  =  `${year}-${month}-${day}`
+    let cajaAbiertaConCuanto = await cajaModel.findCaja(req.user.nombre, currentDate)
+    res.json(cajaAbiertaConCuanto)
+})
+
+
+router.post('/caja-aperturar_caja', isUserLoggedIn, async (req, res)=>{
+    cajaModel.aperturarCaja(res, req.body.montoAperturarCaja, req.user.nombre)
 })
 router.post('/admin-cancelar_whole_order', async (req, res)=>{
     let cancelada_pagada
     (req.body.isItChecked=='true') ? cancelada_pagada = 1: cancelada_pagada = 0
-    const foundUser = await pool.pool.query(`SELECT * FROM usuarios WHERE email = '${req.body.email}'`);
-    console.log(foundUser)
+    const foundUser = await pool.restaurante.query(`SELECT * FROM usuarios WHERE email = '${req.body.email}'`);
     if(foundUser.length!=0){
         const setPermission = foundUser[0].set_permission
         const foundUserspassword = foundUser[0].pwd
         try{
             if(await bcrypt.compare(req.body.password, foundUserspassword)&&setPermission=="admin"){
-                console.log(foundUser[0].names)
                 let admin = foundUser[0].names
                 let mesaName = req.body.mesaName
                 await pool.pool_ordenes.query(`UPDATE ${mesaName} SET cancelada_pagada='${cancelada_pagada}', administrador='${admin}'`)
@@ -339,9 +350,7 @@ router.post('/admin-cancelar_whole_order', async (req, res)=>{
             }else{
                 res.json(false)
             }
-
         }catch(error) {
-            console.log(error)
             res.json(false)
         }
     }else{
@@ -351,6 +360,7 @@ router.post('/admin-cancelar_whole_order', async (req, res)=>{
 function isUserLoggedIn(req, res, next){
     const authHeader = req.body.headers.Authorization
     const url = req.body.url
+    console.log(url)
     const token = authHeader && authHeader.split(' ')[1]
     if(token == null) return res.sendStatus(401)
 

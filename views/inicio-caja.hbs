@@ -1,7 +1,7 @@
 <h1>Órdenes:</h1>
 
 <div id="ordenes_container">
-    <div class="card col-5 ordenes-card">
+    {{!-- <div class="card col-5 ordenes-card">
         <div class="card-body no-events">
             <h2 id="1" class="mesa_identifier">Mesa #01</h2>
             <table class="table table-hover">
@@ -54,7 +54,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 
@@ -67,27 +67,27 @@
     <div class="floating_card">
         <div class="card">
             <div class="card-body">
-                <h2 style="display:inline-block">Número de Mesa:&nbsp&nbsp&nbsp</h2><input id="checkout_card-numero_de_mesa" type="number" style="width: 60px;font-size:30px;">
+                <h2 style="display:inline-block">Número de Mesa:&nbsp&nbsp&nbsp</h2><input id="checkout_card-numero_de_mesa" type="number" style="width: 60px;font-size:30px;" min="0">
                 <br>
                 <p id="no_se_pudo_encontrar_esa_mesa" style="color:red;display:none;">No se pudo encontrar esa mesa</p>
                 <br>
-                <div id="pagar_inputs">
+                <div id="pagar_inputs" min="0">
                     <div class="mb-3 row">
                         <label for="inputPassword" class="col-sm-3 col-form-label">Efectivo</label>
                         <div class="col-sm-3">
-                            <input type="number" class="form-control" id="efectivo">
+                            <input type="number" class="form-control" id="efectivo" min="0">
                         </div>
                     </div>
                     <div class="mb-3 row">
                         <label for="inputPassword" class="col-sm-3 col-form-label">Tarjeta</label>
                         <div class="col-sm-3">
-                            <input type="number" class="form-control" id="tarjeta">
+                            <input type="number" class="form-control" id="tarjeta" min="0">
                         </div>
                     </div>
                     <div class="mb-3 row">
                         <label for="inputPassword" class="col-sm-3 col-form-label">Yape</label>
                         <div class="col-sm-3">
-                            <input type="number" class="form-control" id="yape">
+                            <input type="number" class="form-control" id="yape" min="0">
                         </div>
                     </div>
                 </div>
@@ -99,9 +99,12 @@
                 </div>
             </div>
         </div>
+        <br>
+        <div class="mb-3 row">
+            <button type="button" class="btn btn-danger" id="modal-cerrarCaja_button">Cerrar caja</button>
+        </div>
     </div>
 
-    
 </div>
 <br>
 <br>
@@ -116,6 +119,38 @@
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
+</div>
+
+
+<div id="modal-aperturar_caja" class="modal" style="display:none;">
+
+    <!-- Modal content -->
+    <div class="custom-modal-content" style="width:545px">
+        <h1>Aperturar Caja</h1>
+        <br>
+        <h4>Se está abriendo caja con:</h4>
+        <div class="mb-3">
+            <input id='aperturar_caja-input' type="number" class="form-control" placeholder="0.00" style="width:235px" min="0">
+            <br>
+            <label class="form-label" id="aperturar_caja-error" style="color:red;display:none">Debe de digitar un monto mayor o igual a 0</label>
+            <label class="form-label" id="aperturar_caja-connection_error" style="color:red;display:none">Error de conexión</label>
+        </div>
+        <button id="confirm-aperturar_caja" class='btn btn-success'>Confirmar</button>
+    </div>
+
+</div>
+
+<div id="modal-cerrar_caja" class="modal">
+
+    <!-- Modal content -->
+    <div class="custom-modal-content" style="width:545px">
+        <h1>Cerrar caja</h1>
+        <br>
+        <h4>Se está cerrando caja con:</h4>
+        <h1 id='cerrar_caja-monto' style='color:red'></h1>
+        <button id="confirm-cerrar_caja" class='btn btn-success'>Confirmar</button>
+    </div>
+
 </div>
 
 <div id="admin_permission-cancelar_plato" class="modal">

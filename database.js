@@ -4,10 +4,10 @@ const { database } = require('./keys');
 const { ordenes_DDBB } = require('./keys');
 
 //createPool es como createConnection pero mas forgiving
-const pool = mysql.createPool(database);
+const restaurante = mysql.createPool(database);
 const pool_ordenes = mysql.createPool(ordenes_DDBB);
 
-pool.getConnection((err, connection) => {
+restaurante.getConnection((err, connection) => {
     if (err) {
         if (err.code === 'PROTOCOL_CONNECTION_LOST'){
             console.error('DATABASE CONNECTION WAS CLOSED');
@@ -48,6 +48,6 @@ pool_ordenes.getConnection((err, connection) => {
 })
 
 //Promisify Pool Querys - Nos permite hacer promesas
-pool.query = promisify(pool.query);
+restaurante.query = promisify(restaurante.query);
 pool_ordenes.query = promisify(pool_ordenes.query);
-module.exports = {pool, pool_ordenes}
+module.exports = {restaurante, pool_ordenes}
