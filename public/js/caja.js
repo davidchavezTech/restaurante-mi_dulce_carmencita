@@ -489,7 +489,7 @@ aperturarCajaConfirmBtn.addEventListener('click', ()=>{
         aperturarCajaError.style.display="block"
         return
     }
-    // (aperturarCajaInput.value) ? localStorage.setItem('cajaMoney', aperturarCajaInput.value) : localStorage.setItem(0)
+    (aperturarCajaInput.value) ? localStorage.setItem('cajaMoney', aperturarCajaInput.value) : localStorage.setItem('cajaMoney', 0)
     let data = {
         url: window.location.href,
         montoAperturarCaja: monto,
@@ -530,9 +530,10 @@ confirmCerrarCaja.addEventListener('click', ()=>{
         },
         monto: localStorage.getItem('cajaMoney')
     }
-    $.post('/esta_caja_abierta', data).done(( data ) => {
-        console.log(data)
+    $.post('/caja-cerrar_caja', data).done(( data ) => {
+        localStorage.removeItem('cajaMoney')
+        localStorage.removeItem('JWT')
+        window.location.href='http://localhost:4000/'
     })
-    localStorage.removeItem('JWT')
-    window.location.href='http://localhost:4000/'
+    
 })

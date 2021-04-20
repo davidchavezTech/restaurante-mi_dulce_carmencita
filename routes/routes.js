@@ -6,9 +6,10 @@ const bcrypt = require('bcrypt')
 const path = require('path');
 const pool = require('../database')
 const jwt = require('jsonwebtoken')
-const postToOrdersModel = require('../model/postToOrdenes')
+const postToOrdenesModel = require('../model/postToOrdenes')
 const userModel = require('../model/userModel')
 const cajaModel = require('../model/cajaModel')
+const cocinaModel = require('../model/cocinaModel')
 
 let authorizedURLsForMesero = [
     'http://localhost:4000/inicio-mesero',
@@ -16,10 +17,15 @@ let authorizedURLsForMesero = [
 let authorizedURLsForCaja = [
     'http://localhost:4000/inicio-caja',
 ]
+let authorizedURLsForCocina = [
+    'http://localhost:4000/cocina',
+]
 function authorizeURL(permission, url){
     let searchArray, matchFound
     if(permission=='caja') (searchArray = authorizedURLsForCaja )
     if(permission=='mesero') (searchArray = authorizedURLsForMesero )
+    if(permission=='cocina') (searchArray = authorizedURLsForCocina )
+    if(!searchArray) return false
     for(let i=0;searchArray.length>i;i++){
         if(searchArray[i]==url){
             matchFound=true
@@ -59,6 +65,7 @@ router.post('/login', async (req, res, next) => {
             if(await bcrypt.compare(req.body.password, foundUserspassword)){
                 if(setPermission=='mesero') url='http://localhost:4000/inicio-mesero'
                 if(setPermission=='caja') url='http://localhost:4000/inicio-caja'
+                if(setPermission=='cocina') url='http://localhost:4000/cocina'
                 //create the user object
                 const user = {
                                 email: foundUsersEmail,
@@ -214,6 +221,7 @@ router.post('/post_orden', async (req,res)=>{
             mesero VARCHAR(255),
             cajero VARCHAR(255),
             procesada TINYINT DEFAULT 0,
+            preparada TINYINT DEFAULT 0,
             efectivo TINYINT,
             tarjeta TINYINT,
             yape TINYINT,
@@ -306,7 +314,7 @@ router.post('/admin-cancelar_plato', async (req, res)=>{
 })
 
 router.post('/caja-pay_pedido', isUserLoggedIn, async (req, res)=>{
-    postToOrdersModel.postPayment(res, req.body, req.user.nombre)
+    postToOrdenesModel.postPayment(res, req.body, req.user.nombre)
 })
 router.post('/caja-cerrar_caja', isUserLoggedIn, async (req, res)=>{
     let d = new Date();
@@ -315,7 +323,8 @@ router.post('/caja-cerrar_caja', isUserLoggedIn, async (req, res)=>{
     if(month<10) month = "0" + month
     let year = d.getFullYear()
     let currentDate  =  `${year}-${month}-${day}`
-    cajaModel.cerrar(res, req.user.nombre, currentDate, req.body.monto, next())
+    await cajaModel.cerrarCaja(res, req.user.nombre, currentDate, req.body.monto)
+    res.json(true)
 })
 
 router.post('/esta_caja_abierta', isUserLoggedIn, async (req,res)=>{
@@ -357,6 +366,8 @@ router.post('/admin-cancelar_whole_order', async (req, res)=>{
         res.json(false)
     }
 })
+
+router.post('/cocina-get_todays_orders', cocinaModel.getOrders)
 function isUserLoggedIn(req, res, next){
     const authHeader = req.body.headers.Authorization
     const url = req.body.url
@@ -384,4 +395,8 @@ function authenticateToken(req, res, next){
     //     next()
     // })
 }
+
+router.get('/cocina', (req,res)=>{
+    res.render('cocina', {title: 'cocina'});
+})
 module.exports = router;
