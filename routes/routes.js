@@ -10,6 +10,7 @@ const postToOrdenesModel = require('../model/postToOrdenes')
 const userModel = require('../model/userModel')
 const cajaModel = require('../model/cajaModel')
 const cocinaModel = require('../model/cocinaModel')
+const meseroController = require('../controller/meseroController')
 
 let authorizedURLsForMesero = [
     'http://localhost:4000/inicio-mesero',
@@ -174,33 +175,6 @@ router.post('/authenticate', isUserLoggedIn, (req, res) => {
 router.post('/post_orden', async (req,res)=>{
     let data = req.body.data
     
-    // data = [
-    //     {
-    //         nombre_producto: 'total',
-    //         mesa: 3,
-    //         mesero: 'Joaquín Sanchez García',
-    //         total: '37'
-    //     },
-    //     {
-    //         nombre_producto: 'pachamanca',
-    //         precio: '25',
-    //         cantidad: '1',
-    //         cancelada_pagada: '1',
-    //         mesero: 'Kevin Salgado Sanchez',
-    //         mesa: 3,
-    //         total: '25'
-    //     },
-    //     {
-    //         nombre_producto: 'Jarra de chicha morada',
-    //         precio: '12',
-    //         cantidad: '1',
-    //         cancelada_pagada: '1',
-    //         mesero: 'Kevin Salgado Sanchez',
-    //         mesa: 3,
-    //         total: '12'
-    //     }
-    // ]
-
     //CREAR MESA
     let numberOfTables = await pool.pool_ordenes.query(`SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'ordenes' and TABLE_TYPE='BASE TABLE'`);
     numberOfTables = numberOfTables[0]['COUNT(*)']
@@ -399,4 +373,12 @@ function authenticateToken(req, res, next){
 router.get('/cocina', (req,res)=>{
     res.render('cocina', {title: 'cocina'});
 })
+//**************************MESERO *****************************//
+//**************************MESERO *****************************//
+router.post('/mesero-guardar_orden', isUserLoggedIn, meseroController.createMesa)
+router.post('/mesero-agregar_plato_a_orden', isUserLoggedIn, meseroController.insertIntoMesa)
+router.post('/mesero-agregar_cantidad_de_plato_a_la_orden', isUserLoggedIn, meseroController.increaseQuantityOfDish)
+router.post('/mesero-drop_dish_from_order', isUserLoggedIn, meseroController.dropDish)
+router.post('/mesero-load_tables', isUserLoggedIn, meseroController.loadTables)
+router.post('/mesero-drop_table', isUserLoggedIn, meseroController.dropTable)
 module.exports = router;

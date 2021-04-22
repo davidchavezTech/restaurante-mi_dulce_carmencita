@@ -11,6 +11,12 @@ module.exports = {
         user: 'root',
         password: '',
         database: 'ordenes'
+    },
+    meseros_DDBB: {
+        host: 'localhost',
+        user: 'root',
+        password: '',
+        database: 'meseros'
     }
     
 }

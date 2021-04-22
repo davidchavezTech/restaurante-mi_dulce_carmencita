@@ -4,6 +4,103 @@ let mesaID
 let mesaNumberSpan = document.querySelector('#mesa_number')
 let miNombre
 let savedClickedElement
+
+
+let mesasData = {
+    url: window.location.href,
+    type: 'POST',
+    contentType: 'application/json',
+    headers: {
+        'Authorization': 'Bearer '+localStorageToken.accessToken
+    }
+}
+$.post('/mesero-load_tables', mesasData).done(( data ) => {
+    console.log(data)
+    //create mesas orders from server's response
+    for(i=0;data.length>i;i++){
+
+        let mesaNumber = data[i][0]
+        let div = document.createElement('div')
+        div.id = mesaNumber
+        div.classList.add('mesa_container')
+        div.setAttribute('mesero-mesa_name', data[i][1])
+        switch (mesaNumber) {
+            case 1:
+                mesaNumber = '01';
+                break;
+            case 2:
+                mesaNumber = '02';
+                break;
+            case 3:
+                mesaNumber = '03';
+                break;
+            case 4:
+                mesaNumber = '04';
+                break;
+            case 5:
+                mesaNumber = '05';
+                break;
+            case 6:
+                mesaNumber = '06';
+                break;
+            case 7:
+                mesaNumber = '07';
+                break;
+            case 8:
+                mesaNumber = '08';
+                break;
+            case 9:
+                mesaNumber = '09';
+                break;
+        }
+        //Let's generate the html we will insert into <tbody> for each order
+        let trs = ''
+        for(let j=2;data[i].length>j;j++){
+            trs += `<tr id="orden">
+                <td class="hidden">${data[i][j].id}</td>
+                <td style="padding-top:15px;">${data[i][j].nombre_producto}</td>
+                <td class="text-align-center" style="padding-top:15px;">${data[i][j].cantidad}</td>
+                <td class="text-align-center" style="padding-top:15px;">${data[i][j].precio}</td>
+                <td class="hidden cat-selector">${data[i][j].stock}</td>
+                <td class="hidden">1</td>
+            </tr>`
+        }
+        div.innerHTML = `
+        <div class="comanda-title">
+            <span id="mesa">Mesa #${mesaNumber}</span>
+            <img src="img/expand_arrow.svg" class="expand_arrow">
+        </div>
+        <div class="comanda-info">
+            <table class="comanda_table">
+                <thead class="color-thead">
+                    <tr class="comanda-row">
+                        <th class="hidden">id</th>
+                        <th>Producto</th>
+                        <th>cantidad</th>
+                        <th class="text-align-center">Precio</th>
+                        <th class="hidden">Categoría</th>
+                        <th class="hidden">stock</th>
+                    </tr>
+                </thead>
+                <tbody id="main_tbody">
+                    ${trs}
+                </tbody>
+            </table>
+            <div class="space-between">
+                <div class="total-container">
+                    <h1 style="display:inline-block">Total:&nbsp;&nbsp; </h1><span id="precio_total"></span>
+                </div>
+                <div>
+                    <img src="img/check.svg" class="check" alt="">
+                    <img src="img/delete.svg" class="trashcan" alt="">
+                </div>
+            </div>
+        </div>
+        `
+        comandas_container.append(div)
+    }
+})
+
 $("#main_table").on("click", "tr", function(e) {
     let orig = $(e.currentTarget)[0]
     if(orig.id == 'main_thead-tr') {return}
@@ -15,27 +112,28 @@ $("#main_table").on("click", "tr", function(e) {
     if(container.children.length!=0){
         let containerTableRows = container.children[0].children[1].children[0].children[1]
         //check if selected mesa is empty
-        if(containerTableRows.children.length!=0){
+        if(containerTableRows.children.length!=0){//not empty, has rows in it, cont
             let gotAmatch = false
-            for(let i=0;containerTableRows.children.length>i;i++){//if it has rows in it, cont
+            for(let i=0;containerTableRows.children.length>i;i++){//check if already added, if so, add one more to quantity
                 let idForRowBeenSearched = containerTableRows.children[i].children[0].textContent
-                //check id of row's first child, aka id <td>
-                if(clickedRowID==idForRowBeenSearched){
+                if(clickedRowID==idForRowBeenSearched){//got a match!
                     let currentQuantity = containerTableRows.children[i].children[2].textContent
                     currenQuantity = parseFloat(currentQuantity, 2)
                     let newQuantity = currenQuantity + 1
                     containerTableRows.children[i].children[2].textContent = newQuantity
                     gotAmatch = true
                     i=containerTableRows.children.length
+                    agregarCantidaDePlatoaDDBB(orig.children[0].textContent, newQuantity)
                 }
             }if(!gotAmatch){
-                console.log('not matched')
+                agregarPlatoaDDBB(orig)
                 //append the copied <tr>
                 container.children[0].children[1].children[0].children[1].append(copy)
                 i=containerTableRows.children.length
             }
-        }else{
-            //no platos selected, just append the copied <tr> and don't search if already in there
+        }else{//no platos selected, just append the copied <tr> and don't search if already in there
+            //append TR copy
+            agregarPlatoaDDBB(orig)
             container.children[0].children[1].children[0].children[1].append(copy)
         }
         //Get the total from all platos selected
@@ -72,13 +170,82 @@ $("#main_table").on("click", "tr", function(e) {
         showError('No tiene ninguna mesa seleccionada')
     }
 });
+function agregarPlatoaDDBB(orig){
+    //save it to DDBB
+        
+    let orderID = orig.children[0].textContent
+    let nombre_producto = orig.children[1].textContent
+    let cantidad = orig.children[2].textContent
+    let precio = orig.children[3].textContent
+    let categoria = orig.children[4].textContent
+    let stock = orig.children[5].textContent
+    const data = {
+        url: window.location.href,
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        },
+        orden:{
+            mesaName:container.children[0].getAttribute('mesero-mesa_name'),
+            id:orderID,
+            nombre_producto,
+            cantidad,
+            precio,
+            categoria,
+            stock
+        }
+    }
+    $.post('/mesero-agregar_plato_a_orden', data).done(( data ) => {
+        console.log(data)
+    })
+}
+function dropPlatoFromDDBB(tr){
+    //save it to DDBB
+        
+    let orderID = tr.children[0].textContent
+    const data = {
+        url: window.location.href,
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        },
+        orden:{
+            mesaName:container.children[0].getAttribute('mesero-mesa_name'),
+            id:orderID,
+        }
+    }
+    $.post('/mesero-drop_dish_from_order', data).done(( data ) => {
+        console.log(data)
+    })
+}
+function agregarCantidaDePlatoaDDBB(id, newQuantity){
+    //save it to DDBB
+    const data = {
+        url: window.location.href,
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        },
+        orden:{
+            mesaName:container.children[0].getAttribute('mesero-mesa_name'),
+            id,
+            cantidad: newQuantity,
+        }
+    }
+    $.post('/mesero-agregar_cantidad_de_plato_a_la_orden', data).done(( data ) => {
+        console.log(data)
+    })
+}
 //remove <tr> from selected table
 $("#comanda-selected").on("click", "tr", function(e) {
     if(e.currentTarget.id=='orden'){
         let containerTableRows = e.currentTarget.parentElement
         e.currentTarget.parentNode.removeChild(e.currentTarget)
-        console.log(containerTableRows)
         let completeTotal = 0
+        //redo total
         for(let i=0;containerTableRows.children.length>i;i++){
             let quantity = containerTableRows.children[i].children[2].textContent
             let precio = containerTableRows.children[i].children[3].textContent
@@ -90,6 +257,7 @@ $("#comanda-selected").on("click", "tr", function(e) {
             completeTotal = completeTotal + currentTotal
         }
         document.querySelector('#precio_total').textContent = completeTotal
+        dropPlatoFromDDBB(e.currentTarget)
     }
 })
 let mainTable
@@ -272,90 +440,106 @@ span.onclick = function() {
 //Crear mesas
 document.querySelector('#accept_mesa').addEventListener('click', (e)=>{
     let input = e.target.previousElementSibling
-    let mesas = document.querySelectorAll('.mesa_container')
-    let stopper = false
-    if(!input.value){
-        document.querySelector('.error-mesa').textContent='Llenar número de mesa'
-        return
+    //store it in the DDBB
+    let data = {
+        url: window.location.href,
+        mesaID: input.value,
+        type: 'POST',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        },
     }
-    let mesaNumber = parseInt(input.value)
-    for(let i=0;mesas.length>i;i++){
-        if(mesas[i].id==mesaNumber){
-            document.querySelector('.error-mesa').textContent='Esa mesa ya existe'
-            stopper = true
-            i=mesas.length
+    let meseroMesaName
+    $.post('/mesero-guardar_orden', data).done(( data ) => {
+        meseroMesaName = data
+        console.log(data)
+        let mesas = document.querySelectorAll('.mesa_container')
+        let stopper = false
+        if(!input.value){
+            document.querySelector('.error-mesa').textContent='Llenar número de mesa'
+            return
         }
-    }
-    if(!stopper){
-        let div = document.createElement('div')
-        div.id = input.value
-        div.classList.add('mesa_container')
-        switch (mesaNumber) {
-            case 1:
-                mesaNumber = '01';
-                break;
-            case 2:
-                mesaNumber = '02';
-                break;
-            case 3:
-                mesaNumber = '03';
-                break;
-            case 4:
-                mesaNumber = '04';
-                break;
-            case 5:
-                mesaNumber = '05';
-                break;
-            case 6:
-                mesaNumber = '06';
-                break;
-            case 7:
-                mesaNumber = '07';
-                break;
-            case 8:
-                mesaNumber = '08';
-                break;
-            case 9:
-                mesaNumber = '09';
-                break;
-            // default:
-            //     mesaNumber = input.value
+        let mesaNumber = parseInt(input.value)
+        for(let i=0;mesas.length>i;i++){
+            if(mesas[i].id==mesaNumber){
+                document.querySelector('.error-mesa').textContent='Esa mesa ya existe'
+                stopper = true
+                i=mesas.length
+            }
         }
-        div.innerHTML = `
-        <div class="comanda-title">
-            <span id="mesa">Mesa #${mesaNumber}</span>
-            <img src="img/expand_arrow.svg" class="expand_arrow">
-        </div>
-        <div class="comanda-info">
-            <table class="comanda_table">
-                <thead class="color-thead">
-                    <tr class="comanda-row">
-                        <th class="hidden">id</th>
-                        <th>Producto</th>
-                        <th>cantidad</th>
-                        <th class="text-align-center">Precio</th>
-                        <th class="hidden">Categoría</th>
-                        <th class="hidden">stock</th>
-                    </tr>
-                </thead>
-                <tbody id="main_tbody"> 
-                </tbody>
-            </table>
-            <div class="space-between">
-                <div class="total-container">
-                    <h1 style="display:inline-block">Total:&nbsp;&nbsp; </h1><span id="precio_total"></span>
-                </div>
-                <div>
-                    <img src="img/check.svg" class="check" alt="">
-                    <img src="img/delete.svg" class="trashcan" alt="">
+        if(!stopper){
+
+            let div = document.createElement('div')
+            div.id = input.value
+            div.classList.add('mesa_container')
+            div.setAttribute('mesero-mesa_name', meseroMesaName)
+            switch (mesaNumber) {
+                case 1:
+                    mesaNumber = '01';
+                    break;
+                case 2:
+                    mesaNumber = '02';
+                    break;
+                case 3:
+                    mesaNumber = '03';
+                    break;
+                case 4:
+                    mesaNumber = '04';
+                    break;
+                case 5:
+                    mesaNumber = '05';
+                    break;
+                case 6:
+                    mesaNumber = '06';
+                    break;
+                case 7:
+                    mesaNumber = '07';
+                    break;
+                case 8:
+                    mesaNumber = '08';
+                    break;
+                case 9:
+                    mesaNumber = '09';
+                    break;
+                // default:
+                //     mesaNumber = input.value
+            }
+            div.innerHTML = `
+            <div class="comanda-title">
+                <span id="mesa">Mesa #${mesaNumber}</span>
+                <img src="img/expand_arrow.svg" class="expand_arrow">
+            </div>
+            <div class="comanda-info">
+                <table class="comanda_table">
+                    <thead class="color-thead">
+                        <tr class="comanda-row">
+                            <th class="hidden">id</th>
+                            <th>Producto</th>
+                            <th>cantidad</th>
+                            <th class="text-align-center">Precio</th>
+                            <th class="hidden">Categoría</th>
+                            <th class="hidden">stock</th>
+                        </tr>
+                    </thead>
+                    <tbody id="main_tbody"> 
+                    </tbody>
+                </table>
+                <div class="space-between">
+                    <div class="total-container">
+                        <h1 style="display:inline-block">Total:&nbsp;&nbsp; </h1><span id="precio_total"></span>
+                    </div>
+                    <div>
+                        <img src="img/check.svg" class="check" alt="">
+                        <img src="img/delete.svg" class="trashcan" alt="">
+                    </div>
                 </div>
             </div>
-        </div>
-        `
-        comandas_container.append(div)
-        modal.style.display = "none";
-        input.value = ''
-    }
+            `
+            comandas_container.append(div)
+            modal.style.display = "none";
+            input.value = ''
+        }
+    })
 })
 
 // Get the modal
@@ -374,6 +558,20 @@ confirmMesaDeleteBtn.addEventListener('click', ()=>{
         if(mesa.id==mesaID){
             mesa.remove()
             deleteModal.style.display = "none";
+
+            //remove it from DDBB as well
+            let mesaData = {
+                url: window.location.href,
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '+localStorageToken.accessToken
+                },
+                mesaID
+            }
+            $.post('/mesero-drop_table', mesaData).done(( data ) => {
+                console.log(data)
+            })
             return
         }
     })
