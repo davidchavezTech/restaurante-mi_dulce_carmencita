@@ -46,9 +46,28 @@ app.use(require('./routes/routes'));
 io.on('connection', (socket) => {
     console.log('a user connected');
     
+    //Nueva orden de meseros
     socket.on('Nueva orden', (msg) => {
         console.log(msg)
         io.emit('Nueva orden', msg);
+    })
+    //Nueva orden lista de cocina
+    socket.on('Nueva orden lista - cocina', (msg) => {
+        console.log('se emitió:')
+        console.log(msg)
+        io.emit('Nueva orden lista - cocina', msg);
+    })
+    //Nueva plato listo de cocina
+    socket.on('Nuevo plato listo - cocina', (tableID_and_dish_name) => {
+        console.log('se emitió:')
+        console.log(tableID_and_dish_name)
+        io.emit('Nuevo plato listo - cocina', tableID_and_dish_name);
+    })
+    //Nueva cambio de stock de plato
+    socket.on('cambio de stock - cocina', (platoID_and_stock_state) => {
+        console.log('se emitió:')
+        console.log(platoID_and_stock_state)
+        io.emit('cambio de stock - cocina', platoID_and_stock_state);
     })
 });
 

@@ -12,6 +12,28 @@ const postPayment = async (res, data, name)=>{
         res.json(err)
     }
 }
+
+const postNuevoIngresoAcaja = async (req, res)=>{
+    let d = new Date();
+    let day = d.getDate()
+    let month = d.getMonth() + 1
+    if(month<10) month = "0" + month
+    let year = d.getFullYear()
+    let currentDate  =  `${year}-${month}-${day}`
+    try{
+        let storedIngresos = await pool.restaurante.query(`SELECT ingresos FROM caja 
+            WHERE cajero='${req.user.nombre}' AND date='${currentDate} cerrar IS NULL LIMIT 1'`);
+        storedIngresos = storedIngresos[0].ingresos
+        let nuevosIngresos = parseFloat(req.body.ingresos, 2)
+        let ingresosParaInsertar = storedIngresos + nuevosIngresos
+        await pool.restaurante.query(`UPDATE caja SET ingresos='${ingresosParaInsertar}'
+        WHERE cajero='${req.user.nombre}' AND date='${currentDate} cerrar IS NULL LIMIT 1'`);
+        res.json(true)
+    }catch(err){
+        res.json(err)
+    }
+}
 module.exports = {
-    postPayment
+    postPayment,
+    postNuevoIngresoAcaja
 }

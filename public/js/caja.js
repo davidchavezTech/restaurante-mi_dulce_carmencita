@@ -68,19 +68,33 @@ send_paid_orderBtn.addEventListener('click',()=>{
             let ammountPaid = efectivoPayment + tarjetaPayment + yapePayment
             let currentTotal = totalCheckout.textContent
             currentTotal = parseFloat(currentTotal, 2)
-            let newCajaMoney = ammountPaid - totalCheckout.textContent
+            let newCajaMoney = ammountPaid - currentTotal
             cajaMoney = cajaMoney + newCajaMoney
             localStorage.setItem('cajaMoney', cajaMoney)
-            findMesa.closest('.ordenes-card').style.display = 'none'
+            findMesa.closest('.ordenes-card').remove()
             deselectCards()
             numero_de_mesa_input.value = ''
             efectivoInput.value = ''
             tarjetaInput.value = ''
             yapeInput.value = ''
             totalCheckout.textContent = '0'
-
+            //second request to insert the payment into ddbb
+            let newData = {
+                ingresos: newCajaMoney,
+                url: window.location.href,
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '+localStorageToken.accessToken
+                },
+            }
+            debugger
+            $.post('/set_nuevo_ingreso_a_caja', newData).done(( data ) => {
+                console.log(data)
+            })
         }
     })
+    
 })
 let toastMesaEmpty = new bootstrap.Toast(toast, option)
 

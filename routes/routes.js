@@ -146,6 +146,10 @@ router.post('/inicio', isUserLoggedIn, async (req, res) => {
     res.json(responseObject)
 })
 
+router.post('/mesero-load_categories', async (req, res) => {
+    let result = await pool.restaurante.query(`SELECT * FROM categorias`);
+    res.json(result)
+})
 router.post('/inicio-mesero', isUserLoggedIn, async (req, res) => {
     let html = ''
     let result = await pool.restaurante.query(`SELECT * FROM productos`);
@@ -222,6 +226,15 @@ router.post('/post_orden', async (req,res)=>{
                 '${data[i].total}');
         `)
     }
+
+    //set the "delivery_state" to 1 to the first row of meseros DDBB table with the table name that the client is refering to
+    
+    let mesaNumber = req.body.data[0].mesa
+    let meseroName = req.body.data[0].mesero
+    let meseroNameNoSpaces = meseroName.replace(/ /g,"")
+    let mesero_MesaName = `${currentDate}_${meseroNameNoSpaces}_${mesaNumber}`
+
+    await pool.pool_meseros.query(`UPDATE ${mesero_MesaName} SET delivery_state='1'`)
     //created html - send it to socket:
     data[0].nombre_producto = currentDate+'_'+id
     res.json(data)
@@ -236,7 +249,7 @@ router.post('/get_todays_orders', async (req,res)=>{
     currentDate  =  `${day}_${month}_${year}`
     //get all the tables with the name of todays date--
     let result = await pool.pool_ordenes.query(`SELECT * FROM INFORMATION_SCHEMA.TABLES
-    WHERE TABLE_NAME LIKE '${currentDate}%'`)
+    WHERE TABLE_NAME LIKE '${currentDate}%' AND TABLE_SCHEMA = 'ordenes'`)
     let dataToSend = []
     
     
@@ -290,6 +303,8 @@ router.post('/admin-cancelar_plato', async (req, res)=>{
 router.post('/caja-pay_pedido', isUserLoggedIn, async (req, res)=>{
     postToOrdenesModel.postPayment(res, req.body, req.user.nombre)
 })
+router.post('/set_nuevo_ingreso_a_caja', isUserLoggedIn, postToOrdenesModel.postNuevoIngresoAcaja)
+
 router.post('/caja-cerrar_caja', isUserLoggedIn, async (req, res)=>{
     let d = new Date();
     let day = d.getDate()
@@ -341,7 +356,7 @@ router.post('/admin-cancelar_whole_order', async (req, res)=>{
     }
 })
 
-router.post('/cocina-get_todays_orders', cocinaModel.getOrders)
+
 function isUserLoggedIn(req, res, next){
     const authHeader = req.body.headers.Authorization
     const url = req.body.url
@@ -382,3 +397,10 @@ router.post('/mesero-drop_dish_from_order', isUserLoggedIn, meseroController.dro
 router.post('/mesero-load_tables', isUserLoggedIn, meseroController.loadTables)
 router.post('/mesero-drop_table', isUserLoggedIn, meseroController.dropTable)
 module.exports = router;
+
+//**************************COCINA*****************************//
+//**************************COCINA*****************************//
+
+router.post('/cocina-get_todays_orders', cocinaModel.getOrders)
+router.post('/cocina-procesar_orden', isUserLoggedIn, cocinaModel.procesarOrden)
+router.post('/cocina-set_stock', cocinaModel.setStock)

@@ -24,38 +24,42 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
         div.id = mesaNumber
         div.classList.add('mesa_container')
         div.setAttribute('mesero-mesa_name', data[i][1])
-        switch (mesaNumber) {
-            case 1:
-                mesaNumber = '01';
-                break;
-            case 2:
-                mesaNumber = '02';
-                break;
-            case 3:
-                mesaNumber = '03';
-                break;
-            case 4:
-                mesaNumber = '04';
-                break;
-            case 5:
-                mesaNumber = '05';
-                break;
-            case 6:
-                mesaNumber = '06';
-                break;
-            case 7:
-                mesaNumber = '07';
-                break;
-            case 8:
-                mesaNumber = '08';
-                break;
-            case 9:
-                mesaNumber = '09';
-                break;
-        }
+        // switch (mesaNumber) {
+        //     case 1:
+        //         mesaNumber = '01';
+        //         break;
+        //     case 2:
+        //         mesaNumber = '02';
+        //         break;
+        //     case 3:
+        //         mesaNumber = '03';
+        //         break;
+        //     case 4:
+        //         mesaNumber = '04';
+        //         break;
+        //     case 5:
+        //         mesaNumber = '05';
+        //         break;
+        //     case 6:
+        //         mesaNumber = '06';
+        //         break;
+        //     case 7:
+        //         mesaNumber = '07';
+        //         break;
+        //     case 8:
+        //         mesaNumber = '08';
+        //         break;
+        //     case 9:
+        //         mesaNumber = '09';
+        //         break;
+        // }
         //Let's generate the html we will insert into <tbody> for each order
         let trs = ''
+        let total = 0
         for(let j=2;data[i].length>j;j++){
+            let qnt = parseFloat(data[i][j].cantidad, 2)
+            let price = parseFloat(data[i][j].precio, 2)
+            total+=qnt*price
             trs += `<tr id="orden">
                 <td class="hidden">${data[i][j].id}</td>
                 <td style="padding-top:15px;">${data[i][j].nombre_producto}</td>
@@ -65,9 +69,19 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
                 <td class="hidden">1</td>
             </tr>`
         }
+        let grayedOut = ''
+        let display = ''
+        if(data[i][2]){
+            if(data[i][2].delivery_state==1){
+                grayedOut = 'gray-out'
+                display=' hidden'
+            }else{
+                 grayedOut = ''
+            }
+        }
         div.innerHTML = `
-        <div class="comanda-title">
-            <span id="mesa">Mesa #${mesaNumber}</span>
+        <div class="comanda-title ${grayedOut}">
+            <span id="${mesaNumber}" class="mesa">Mesa ${mesaNumber}</span>
             <img src="img/expand_arrow.svg" class="expand_arrow">
         </div>
         <div class="comanda-info">
@@ -88,10 +102,10 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
             </table>
             <div class="space-between">
                 <div class="total-container">
-                    <h1 style="display:inline-block">Total:&nbsp;&nbsp; </h1><span id="precio_total"></span>
+                    <h1 style="display:inline-block">Total:&nbsp;&nbsp; </h1><span id="precio_total">${total}</span>
                 </div>
                 <div>
-                    <img src="img/check.svg" class="check" alt="">
+                    <img src="img/check.svg" class="check${display}" alt="">
                     <img src="img/delete.svg" class="trashcan" alt="">
                 </div>
             </div>
@@ -104,6 +118,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
 $("#main_table").on("click", "tr", function(e) {
     let orig = $(e.currentTarget)[0]
     if(orig.id == 'main_thead-tr') {return}
+    if(orig.children[5].textContent == 0) {return}
     let clickedRowID = orig.children[0].textContent
     let copy = orig.cloneNode(true);
     //make quantity visible
@@ -265,18 +280,19 @@ let categories
 this.addEventListener('click', (e)=>{
     let clickedElement = e.target
     // console.log(clickedElement.id)
-    
-    if(clickedElement.id=='cat-1'){
-        filterCategoriesToOnlyDisplayCategory(1)
-    }else if(clickedElement.id=='cat-2'){
-        filterCategoriesToOnlyDisplayCategory(2)
-    }else if(clickedElement.id=='cat-3'){
-        filterCategoriesToOnlyDisplayCategory(3)
-    }else if(clickedElement.id=='cat-4'){
-        filterCategoriesToOnlyDisplayCategory(4)
+    if(clickedElement.getAttribute('categoria')){
+        filterCategoriesToOnlyDisplayCategory(clickedElement.getAttribute('categoria'))
     }
     //expand comandas
     if(clickedElement.classList=='expand_arrow'){
+        //remove orange class for plato ready
+        clickedElement.parentElement.classList.remove('orange')
+        if(clickedElement.parentElement.parentElement.querySelector('.check').classList.contains('hidden')){
+            clickedElement.parentElement.classList.remove('orange')
+            clickedElement.parentElement.classList.add('gray-out')
+        }
+        
+
         let content = clickedElement.parentElement.nextElementSibling;
         if (content.style.maxHeight){
             content.style.maxHeight = null;
@@ -294,7 +310,9 @@ this.addEventListener('click', (e)=>{
         }, 200);
     }
     //check if mesa clicked is not the current selected mesa, if it isn't, put it at the top
-    else if(clickedElement.id=='mesa'&&clickedElement.parentElement.parentElement.parentElement.id=='comanda_container'){
+    else if(clickedElement.classList=='mesa'&&clickedElement.parentElement.parentElement.parentElement.id=='comanda_container'){
+        //check if it's grayed out, if so, don't push it to the top
+        if(clickedElement.parentElement.classList.contains('gray-out')) return
         //check if there are no mesas currently selected
         if(container.children.length==0){
             let mesaContainer = clickedElement.parentElement.parentElement
@@ -307,7 +325,7 @@ this.addEventListener('click', (e)=>{
         }
         
     }//check if mesa clicked is the selected mesa, if it is, move it to the bottom
-    else if(clickedElement.id=='mesa'&&clickedElement.parentElement.parentElement.parentElement.id=='comanda-selected'){
+    else if(clickedElement.classList=='mesa'&&clickedElement.parentElement.parentElement.parentElement.id=='comanda-selected'){
         let mesaContainer = clickedElement.parentElement.parentElement
         document.querySelector('#comanda_container').append(mesaContainer)
     }else if(clickedElement.classList == 'nueva_comanda'){
@@ -317,8 +335,11 @@ this.addEventListener('click', (e)=>{
         deleteModal.style.display = "block";
     }
     else if(clickedElement.classList=='check'){
+        if(clickedElement.closest('.comanda-info').children[0].children[1].children.length==0){
+            showError('Su mesa no tiene órdenes')
+            return
+        }
         savedClickedElement=clickedElement
-        
         sendModal.style.display = "block";
     }else if(clickedElement.id=='cancel-mesa_send'){
         mesaID = clickedElement.parentElement.parentElement.id
@@ -376,7 +397,7 @@ function emitAndSaveToDDBBSelectedTable(clickedElement){
                 let mesa_container = clickedElement.closest('.mesa_container')
                 mesa_container.querySelector('.comanda-info').style.maxHeight = ''
                 mesa_container.children[0].children[1].src = 'img/expand_arrow.svg'
-                clickedElement.remove()
+                clickedElement.classList.add('hidden')
                 
                 comandas_container.append(mesa_container)
             }else{
@@ -393,19 +414,35 @@ const data = {
         'Authorization': 'Bearer '+localStorageToken.accessToken
     },
 }
-
+$.post('/mesero-load_categories').done(( data ) => {
+    let cat_div = document.querySelector('.horizontal-div')
+    for(let i=0;data.length>i;i++){
+        let category = document.createElement('div')
+        category.setAttribute('categoria', data[i].ID)
+        category.classList = 'category'
+        category.textContent = data[i].nombre_de_categoria
+        cat_div.append(category)
+    }
+})
 $.post('/inicio-mesero', data).done(( data ) => {
         console.log(data)
-    let theadRow = $('#main_thead-tr')
+    let tHeadRow = $('#main_thead-tr')
     miNombre = data.nombres
     for(let i=0;data.headers.length>i;i++){
         let th = document.createElement('th')
         th.textContent = data.headers[i]
         if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'){th.classList.add('hidden')}
         if(data.headers[i]=='Precio'){th.classList.add('text-align-center')}
-        theadRow.append(th)
+        tHeadRow.append(th)
     }
     $('#main_tbody').append(data.html)
+    let trs = document.querySelectorAll('#orden')
+    trs.forEach(tr =>{
+        if(tr.children[5].textContent==0){
+            tr.style.backgroundColor = '#f12929'
+            tr.style.color = 'white'
+        }
+    })
     mainTable = document.querySelector('table#main_table')
     categories = mainTable.querySelectorAll('td.cat-selector')
     filterCategoriesToOnlyDisplayCategory(1)
@@ -473,40 +510,40 @@ document.querySelector('#accept_mesa').addEventListener('click', (e)=>{
             div.id = input.value
             div.classList.add('mesa_container')
             div.setAttribute('mesero-mesa_name', meseroMesaName)
-            switch (mesaNumber) {
-                case 1:
-                    mesaNumber = '01';
-                    break;
-                case 2:
-                    mesaNumber = '02';
-                    break;
-                case 3:
-                    mesaNumber = '03';
-                    break;
-                case 4:
-                    mesaNumber = '04';
-                    break;
-                case 5:
-                    mesaNumber = '05';
-                    break;
-                case 6:
-                    mesaNumber = '06';
-                    break;
-                case 7:
-                    mesaNumber = '07';
-                    break;
-                case 8:
-                    mesaNumber = '08';
-                    break;
-                case 9:
-                    mesaNumber = '09';
-                    break;
-                // default:
-                //     mesaNumber = input.value
-            }
+            // switch (mesaNumber) {
+            //     case 1:
+            //         mesaNumber = '01';
+            //         break;
+            //     case 2:
+            //         mesaNumber = '02';
+            //         break;
+            //     case 3:
+            //         mesaNumber = '03';
+            //         break;
+            //     case 4:
+            //         mesaNumber = '04';
+            //         break;
+            //     case 5:
+            //         mesaNumber = '05';
+            //         break;
+            //     case 6:
+            //         mesaNumber = '06';
+            //         break;
+            //     case 7:
+            //         mesaNumber = '07';
+            //         break;
+            //     case 8:
+            //         mesaNumber = '08';
+            //         break;
+            //     case 9:
+            //         mesaNumber = '09';
+            //         break;
+            //     // default:
+            //     //     mesaNumber = input.value
+            // }
             div.innerHTML = `
             <div class="comanda-title">
-                <span id="mesa">Mesa #${mesaNumber}</span>
+                <span id="${mesaNumber}" class="mesa">Mesa ${mesaNumber}</span>
                 <img src="img/expand_arrow.svg" class="expand_arrow">
             </div>
             <div class="comanda-info">

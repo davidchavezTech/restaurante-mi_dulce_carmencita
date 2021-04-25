@@ -31,13 +31,17 @@ body{
 }.category:nth-child(even){
     background-color: #fcc214
 }.category{
+    font-weight: bold;
+    letter-spacing: .5px;
+    text-align: center;
+    white-space: pre-wrap;
     vertical-align: middle;
     display: inline-flex;
     justify-content: center;
     align-items: center;
     font-size:15px;
-    width:100px;
-    height: 100%;
+    width:150px;
+    height: 80px;
 }.comida-ico{
     width:50px;
 }.jugo-ico{
@@ -194,4 +198,18 @@ input[type=number] {
     pointer-events: auto;
 }.gray-out{
     background-color: #aaa;
+}.red{
+    background-color: red;
+    color:white;
+    border:solid 2px orange;
+}.orange{
+    background-color: orange;
+    color:red;
+    border:solid 2px red;
+}.nav-link{
+    cursor: pointer;
+}.category-cocina-colors:nth-child(odd){
+    background-color: #e4e4e4
+}.category-cocina-colors:nth-child(even){
+    background-color: #7998af
 }
