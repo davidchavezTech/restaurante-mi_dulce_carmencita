@@ -135,6 +135,20 @@ input[type=number] {
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+}.custom-modal-content2 {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%;
+}.custom-modal-content3 {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+    padding-left:70px;
+    padding-top: 40px;
 }
   
 .close {
@@ -212,4 +226,32 @@ input[type=number] {
     background-color: #e4e4e4
 }.category-cocina-colors:nth-child(even){
     background-color: #7998af
+}.buttons-container{
+    margin-left: 25px;
+}.success-msg{
+    position: sticky;
+    top: 0;
+    width: 100vw;
+    height: 40px;
+    background-color: rgb(73, 194, 73);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 30px;
+    font-size: 18px;
+    opacity: 0;
+}.activate-success-msg{
+    animation-name: success;
+    animation-duration: 2s;
+    animation-delay: 0s;
+}
+@keyframes success {
+    0%   {opacity:0;}
+    20%  {opacity:1;}
+    80%  {opacity:1;}
+    100%   {opacity:0;}
+}.center-td{
+    display: flex;
+    justify-content: center;
 }

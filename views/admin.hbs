@@ -1,0 +1,233 @@
+<div class='success-msg'>Los cambios se guardaron satisfactoriamente</div>
+<h1 id='title' style="margin-left: 15px;">Administración:</h1>
+<br>
+
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <span  id="por_procesar" class="nav-link active" aria-current="page">Excel</span>
+  </li>
+  <li class="nav-item">
+    <span id="procesadas" class="nav-link">Usuarios</span>
+  </li>
+  <li class="nav-item">
+    <span  id="platos" class="nav-link">Platos</span>
+  </li>
+  {{!-- <li class="nav-item">
+    <a class="nav-link disabled" tabindex="-1" aria-disabled="true">Disabled</a>
+  </li> --}}
+</ul>
+
+<div id="main-container">
+    <br>
+    <h2 style="margin-left: 25px;">Generar:</h2>
+    <br>
+    <br>
+    <div class='buttons-container'>
+        <button type="button" class="btn btn-primary">Reporte de atenciones</button><br><br>
+        <button type="button" class="btn btn-primary">Reporte de comandas</button><br><br>
+        <button type="button" class="btn btn-primary">Reporte de cuadres de caja</button><br><br>
+        <button type="button" class="btn btn-primary">Reporte de productos vendidos</button><br><br>
+    </div>
+</div>
+
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content2">
+    <span class="close">&times;</span>
+    <h2 id='modal-title'>Titulo</h2>
+    <br>
+    <br>
+    <p>De:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<input type="date">
+    <br>
+    <br>
+    hasta:&nbsp&nbsp&nbsp<input type="date"></p>
+    <br>
+    <div style="display:flex;align-items:center;justify-content:flex-end;">
+        <button class='btn btn-success' id='accept_mesa'>Guardar</button>
+        <button class='btn btn-secondary' id='accept_mesa' style='margin-left: 22px;'>Cancelar</button>
+    </div>
+    <p class="error-mesa" style="color:red"></p>
+  </div>
+
+</div>
+
+<div id="CreateNewUserModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content3">
+    <h2 id='modal-title'>Crear nuevo usuario:</h2>
+    <br>
+    <br>
+    <div class="mb-3">
+		<label class="form-label">Nombre Completo</label>
+		<input id='crear-nombres-input' type="input" class="form-control" placeholder="Nombres completos" style="width:235px">
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Correo electrónico</label>
+		<input id='crear-email-input' type="email" class="form-control" placeholder="micorreo@ejemplo.com" style="width:235px">
+	</div>
+	<div class="mb-3">
+		<label class="form-label">Permisos</label>
+		<select class="form-select" id="crear-permisos-select" style="width:235px">
+			<option value="mesero">Mesero</option>
+			<option value="caja">Caja</option>
+			<option value="cocina">Cocina</option>
+			<option value="admin">Aministrador</option>
+		</select>
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Contraseña</label>
+		<input id='crear-contrasena-input' type="password" class="form-control" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" style="width:235px">
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Repetir la contraseña</label>
+		<input id='crear-contrasena-confirmar-input' type="password" class="form-control" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" style="width:235px">
+	</div>
+	<button id="confirm-crear_usuario" class='btn btn-success'>Confirmar</button>
+	<button id="cancel-crear_usuario" class='btn btn-secondary' style="margin-left:20px">Cancelar</button>
+    <br>
+    <br>
+    <p style='color:red;display:none;' id='crear-usuario-error'>Llenar todos los campos de forma correcta</p>
+    <p style='color:red;display:none;' id='crear-usuario-ya-existe'>Usuario ya existe</p>
+    <br>
+  </div>
+
+</div>
+
+
+<div id="deleteUserModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content3">
+    <h2 id='modal-title'>Eliminar usuario</h2>
+    <br>
+    <br>
+    <div class="mb-3">
+		<label class="form-label">¿Seguro que desea eliminar a <span id='nombreDeUsuarioContainer' style='font-weight: bold;
+    color: red;'></span>?</label>
+	</div>
+    
+	<button id="delete_user-confirm_button" class='btn btn-success'>Confirmar</button>
+	<button id="delete_user-cancel_button" class='btn btn-secondary' style="margin-left:20px">Cancelar</button>
+    
+    <br>
+  </div>
+
+</div>
+
+
+<div id="EditUserModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content3" style='background-color:#ffd577;'>
+    <h2 id='modal-title'>Editar usuario:</h2>
+    <br>
+    <br>
+    <div class="mb-3">
+		<label class="form-label">Nombre Completo</label>
+		<input id='editar-nombres-input' type="input" class="form-control" placeholder="Nombres completos" style="width:235px">
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Correo electrónico</label>
+		<input id='editar-email-input' type="email" class="form-control" placeholder="micorreo@ejemplo.com" style="width:235px">
+	</div>
+	<div class="mb-3">
+		<label class="form-label">Permisos</label>
+		<select class="form-select" id="editar-permisos-select" style="width:235px">
+			<option value="mesero">Mesero</option>
+			<option value="caja">Caja</option>
+			<option value="cocina">Cocina</option>
+			<option value="admin">Aministrador</option>
+		</select>
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Contraseña</label>
+		<input id='editar-contrasena-input' type="password" class="form-control" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" style="width:235px">
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Repetir la contraseña</label>
+		<input id='editar-contrasena-confirmar-input' type="password" class="form-control" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" style="width:235px">
+	</div>
+	<button id="confirm-editar_usuario" class='btn btn-light'>Confirmar</button>
+	<button id="cancel-editar_usuario" class='btn btn-secondary' style="margin-left:20px">Cancelar</button>
+    <br>
+    <br>
+    <p style='color:red;display:none;' id='editar-usuario-error'>Llenar todos los campos de forma correcta</p>
+    <p style='color:red;display:none;' id='editar-usuario-ya-existe'>Usuario ya existe</p>
+    <br>
+  </div>
+
+</div>
+
+{{!-- <div class="card col-10 ordenes-card">
+        
+	<div class="card-body">
+		<h2>Productos</h2>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Nombre</th>
+					<th>Precio de venta</th>
+					<th>Costo unitario promedio</th>
+					<th>Categoría</th>
+					<th>Eliminar</th>
+					<th>Editar</th>
+				</tr>
+			</thead>
+			<tbody id="cuerpo_de_table">
+				
+		<tr>
+			<td>Papa a la huancaína</td>
+			<td style="text-align:center">11.00</td>
+			<td style="text-align:center">3.00</td>
+			<td>
+				<select class="form-select" value="" id="flexCheckDefault">
+					<option value="1">Aministrador</option>
+					<option value="2">Mesero</option>
+					<option value="3">Caja</option>
+					<option value="4">Cocina</option>
+				</select>
+			</td>
+			<td  class='center-td'><button type="button" class="btn btn-danger">X</button></td>
+			<td><button type="button" class="btn btn-success">Editar</button></td>
+		</tr>
+	
+		<tr>
+			<td>Papa a la huancaína</td>
+			<td style="text-align:center">11.00</td>
+			<td style="text-align:center">3.00</td>
+			<td>
+				<select class="form-select" value="" id="flexCheckDefault">
+					<option value="1">Aministrador</option>
+					<option value="2">Mesero</option>
+					<option value="3">Caja</option>
+					<option value="4">Cocina</option>
+				</select>
+			</td>
+			<td  class='center-td'><button type="button" class="btn btn-danger">X</button></td>
+			<td><button type="button" class="btn btn-success">Editar</button></td>
+		</tr>
+	
+			</tbody>
+		</table>
+		<div style="position: absolute;top:25px;right:15px;">
+			<div class="mb-12 row">
+				<div class="col-sm-12">
+					<button type="button" class="btn btn-link" style='font-size:20px'>Crear nuevo producto</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> --}}
+
+<script src="js/controllers/admin/modals.js"></script>
+<script src="js/controllers/admin/navBarClicked.js"></script>
+<script src="js/controllers/admin/loadUsuarios.js"></script>
+<script src="js/controllers/admin/displaySuccessMsg.js"></script>
+<script src="js/controllers/admin/createNewUser.js"></script>
+<script src="js/controllers/admin/deleteUser.js"></script>
+<script src="js/controllers/admin/editUser.js"></script>
+<script src="js/controllers/admin/loadPlatos.js"></script>
+
+<script src="js/admin.js"></script>

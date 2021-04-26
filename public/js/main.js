@@ -29,7 +29,7 @@ if(window.location.href!='http://localhost:4000/' && !localStorageToken){
                 }
                 else{//wrong token, remove it from local storage and redirect to login page
                     localStorage.removeItem('JWT');
-                    window.location.href == 'http://localhost:4000/';
+                    window.location.href = 'http://localhost:4000/';
                 }
             });
         }

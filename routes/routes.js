@@ -6,11 +6,11 @@ const bcrypt = require('bcrypt')
 const path = require('path');
 const pool = require('../database')
 const jwt = require('jsonwebtoken')
-const postToOrdenesModel = require('../model/postToOrdenes')
 const userModel = require('../model/userModel')
 const cajaModel = require('../model/cajaModel')
 const cocinaModel = require('../model/cocinaModel')
 const meseroController = require('../controller/meseroController')
+const adminController = require('../controller/adminController')
 
 let authorizedURLsForMesero = [
     'http://localhost:4000/inicio-mesero',
@@ -21,12 +21,16 @@ let authorizedURLsForCaja = [
 let authorizedURLsForCocina = [
     'http://localhost:4000/cocina',
 ]
+let authorizedURLsForAdmin = [
+    'http://localhost:4000/admin',
+]
 function authorizeURL(permission, url){
     let searchArray, matchFound
-    if(permission=='caja') (searchArray = authorizedURLsForCaja )
     if(permission=='mesero') (searchArray = authorizedURLsForMesero )
-    if(permission=='cocina') (searchArray = authorizedURLsForCocina )
-    if(!searchArray) return false
+    else if(permission=='admin') (searchArray = authorizedURLsForAdmin )
+    else if(permission=='caja') (searchArray = authorizedURLsForCaja )
+    else if(permission=='cocina') (searchArray = authorizedURLsForCocina )
+    else if(!searchArray) return false
     for(let i=0;searchArray.length>i;i++){
         if(searchArray[i]==url){
             matchFound=true
@@ -67,6 +71,7 @@ router.post('/login', async (req, res, next) => {
                 if(setPermission=='mesero') url='http://localhost:4000/inicio-mesero'
                 if(setPermission=='caja') url='http://localhost:4000/inicio-caja'
                 if(setPermission=='cocina') url='http://localhost:4000/cocina'
+                if(setPermission=='admin') url='http://localhost:4000/admin'
                 //create the user object
                 const user = {
                                 email: foundUsersEmail,
@@ -300,10 +305,11 @@ router.post('/admin-cancelar_plato', async (req, res)=>{
     }
 })
 
-router.post('/caja-pay_pedido', isUserLoggedIn, async (req, res)=>{
-    postToOrdenesModel.postPayment(res, req.body, req.user.nombre)
-})
-router.post('/set_nuevo_ingreso_a_caja', isUserLoggedIn, postToOrdenesModel.postNuevoIngresoAcaja)
+router.post('/caja-pay_pedido', isUserLoggedIn, cajaModel.postPayment)
+
+router.post('/set_nuevo_ingreso_a_caja', isUserLoggedIn, cajaModel.postNuevoIngresoAcaja)
+
+router.post('/caja-caja_amount_request', isUserLoggedIn, cajaModel.caja_amount_request)
 
 router.post('/caja-cerrar_caja', isUserLoggedIn, async (req, res)=>{
     let d = new Date();
@@ -404,3 +410,17 @@ module.exports = router;
 router.post('/cocina-get_todays_orders', cocinaModel.getOrders)
 router.post('/cocina-procesar_orden', isUserLoggedIn, cocinaModel.procesarOrden)
 router.post('/cocina-set_stock', cocinaModel.setStock)
+
+
+//**************************ADMINISTRACIÓN*****************************//
+//**************************ADMINISTRACIÓN*****************************//
+
+router.get('/admin', async (req, res) => {
+    res.render('admin', {title: 'Administración'});
+});
+router.post('/admin-get_users', adminController.getUsers)
+router.post('/create_new_user', adminController.creatUser)
+router.post('/delete_user', adminController.deleteUser)
+router.post('/edit_user', adminController.editUser)
+router.post('/admin-get_platos', adminController.loadPlatos)
+router.post('/admin-get_categories', adminController.loadCategories)

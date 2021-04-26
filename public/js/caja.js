@@ -44,8 +44,8 @@ send_paid_orderBtn.addEventListener('click',()=>{
         },
     }
     $.post('/caja-pay_pedido', data).done(( data ) => {
-        let cajaMoney = localStorage.getItem('cajaMoney')
-        if(cajaMoney) cajaMoney = parseFloat(cajaMoney, 2)
+        // let cajaMoney = localStorage.getItem('cajaMoney')
+        // if(cajaMoney) cajaMoney = parseFloat(cajaMoney, 2)
         if(data==true){
             let efectivoPayment = efectivoInput.value
             if(efectivoPayment != ''){
@@ -69,8 +69,8 @@ send_paid_orderBtn.addEventListener('click',()=>{
             let currentTotal = totalCheckout.textContent
             currentTotal = parseFloat(currentTotal, 2)
             let newCajaMoney = ammountPaid - currentTotal
-            cajaMoney = cajaMoney + newCajaMoney
-            localStorage.setItem('cajaMoney', cajaMoney)
+            // cajaMoney = cajaMoney + newCajaMoney
+            // localStorage.setItem('cajaMoney', cajaMoney)
             findMesa.closest('.ordenes-card').remove()
             deselectCards()
             numero_de_mesa_input.value = ''
@@ -88,7 +88,6 @@ send_paid_orderBtn.addEventListener('click',()=>{
                     'Authorization': 'Bearer '+localStorageToken.accessToken
                 },
             }
-            debugger
             $.post('/set_nuevo_ingreso_a_caja', newData).done(( data ) => {
                 console.log(data)
             })
@@ -503,7 +502,7 @@ aperturarCajaConfirmBtn.addEventListener('click', ()=>{
         aperturarCajaError.style.display="block"
         return
     }
-    (aperturarCajaInput.value) ? localStorage.setItem('cajaMoney', aperturarCajaInput.value) : localStorage.setItem('cajaMoney', 0)
+    // (aperturarCajaInput.value) ? localStorage.setItem('cajaMoney', aperturarCajaInput.value) : localStorage.setItem('cajaMoney', 0)
     let data = {
         url: window.location.href,
         montoAperturarCaja: monto,
@@ -529,8 +528,18 @@ let confirmCerrarCaja = document.getElementById('confirm-cerrar_caja')
 modalCerrarCajaBtn = document.getElementById('modal-cerrarCaja_button')
 
 modalCerrarCajaBtn.addEventListener('click', ()=>{
-    montoParaCerrarCajaH4element.textContent = localStorage.getItem('cajaMoney')
-    modalCerrarCaja.style.display='block'
+    let data = {
+        url: window.location.href,
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer '+localStorageToken.accessToken
+        }
+    }
+    $.post('/caja-caja_amount_request', data).done(( data ) => {
+        montoParaCerrarCajaH4element.textContent = data
+        modalCerrarCaja.style.display='block'
+    })
 })
 
 //cerramos caja y nos deslogueamos
@@ -542,12 +551,14 @@ confirmCerrarCaja.addEventListener('click', ()=>{
         headers: {
             'Authorization': 'Bearer '+localStorageToken.accessToken
         },
-        monto: localStorage.getItem('cajaMoney')
+        monto: montoParaCerrarCajaH4element.textContent
     }
     $.post('/caja-cerrar_caja', data).done(( data ) => {
-        localStorage.removeItem('cajaMoney')
         localStorage.removeItem('JWT')
         window.location.href='http://localhost:4000/'
     })
     
+})
+document.querySelector('#cancel-cerrar_caja').addEventListener('click',()=>{
+    modalCerrarCaja.style.display='none'
 })
