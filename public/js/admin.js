@@ -5,9 +5,10 @@ let confirmMesaDeleteBtn = document.getElementById("confirm-mesa_delete");
 
 this.addEventListener('click',(e)=>{
     clickedElement=e.target
+    // console.log(clickedElement.type)
     if(clickedElement.classList.contains('nav-link')){
         navBarClicked(clickedElement)
-    }else if(clickedElement.classList.contains('btn-primary')){
+    }else if(clickedElement.id==('excel-button')){
         showModalGenerarExcel(clickedElement)
     }else if(clickedElement.id == 'crearUsuario'){
         showModalCreateUser()
@@ -15,5 +16,21 @@ this.addEventListener('click',(e)=>{
         showModalDeleteUser(clickedElement)
     }else if(clickedElement.id == 'editarUsuario'){
         showModalEditUser(clickedElement)
+    }else if(clickedElement.id=='userPermissionSelect'){
+        updatePermisoSelect(clickedElement)
+    }else if(clickedElement.id=='platosCategorySelect'){
+        updateCategoriaSelect(clickedElement)
+    }else if(clickedElement.id=='edit-plato'){
+        showModalEditPlato(clickedElement)
+    }else if(clickedElement.id=='create-plato'){
+        showModalCreatePlato(clickedElement)
+    }else if(clickedElement.id=='delete-plato'){
+        showModalDeletePlato(clickedElement)
+    }else if(clickedElement.id=='create-categoria'){
+        showModalCreateCategory(clickedElement)
+    }else if(clickedElement.id=='delete-categoria'){
+        showModalDeleteCategory(clickedElement)
+    }else if(clickedElement.id=='confirm-generar_excel'){
+        showModalGenerateExcel(clickedElement)
     }
 })

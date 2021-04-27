@@ -1,7 +1,13 @@
 <div class='success-msg'>Los cambios se guardaron satisfactoriamente</div>
+
+{{!-- *************************TITLE************************************ --}}
+{{!-- *************************TITLE************************************ --}}
 <h1 id='title' style="margin-left: 15px;">Administración:</h1>
+
 <br>
 
+{{!-- *************************NAV BAR************************************ --}}
+{{!-- *************************NAV BAR************************************ --}}
 <ul class="nav nav-tabs">
   <li class="nav-item">
     <span  id="por_procesar" class="nav-link active" aria-current="page">Excel</span>
@@ -17,19 +23,23 @@
   </li> --}}
 </ul>
 
+{{!-- *************************BODY************************************ --}}
+{{!-- *************************BODY************************************ --}}
 <div id="main-container">
     <br>
     <h2 style="margin-left: 25px;">Generar:</h2>
     <br>
     <br>
     <div class='buttons-container'>
-        <button type="button" class="btn btn-primary">Reporte de atenciones</button><br><br>
-        <button type="button" class="btn btn-primary">Reporte de comandas</button><br><br>
-        <button type="button" class="btn btn-primary">Reporte de cuadres de caja</button><br><br>
-        <button type="button" class="btn btn-primary">Reporte de productos vendidos</button><br><br>
+        <button id='excel-button'type="button" class="btn btn-primary">Reporte de atenciones</button><br><br>
+        <button id='excel-button'type="button" class="btn btn-primary">Reporte de comandas</button><br><br>
+        <button id='excel-button'type="button" class="btn btn-primary">Reporte de cuadre de caja</button><br><br>
+        <button id='excel-button'type="button" class="btn btn-primary">Reporte de productos vendidos</button><br><br>
     </div>
 </div>
 
+{{!-- ************************* MODAL - GENERAR EXCEL************************************ --}}
+{{!-- ************************* MODAL - GENERAR EXCEL************************************ --}}
 <div id="myModal" class="modal">
 
   <!-- Modal content -->
@@ -38,19 +48,23 @@
     <h2 id='modal-title'>Titulo</h2>
     <br>
     <br>
-    <p>De:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<input type="date">
+    <p>De:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<input id='de' type="date">
     <br>
     <br>
-    hasta:&nbsp&nbsp&nbsp<input type="date"></p>
-    <br>
+    hasta:&nbsp&nbsp&nbsp<input id='hasta' type="date"></p>
+    
+    <p id="error-excel" style="color:red; display:none;">Llenar ambos campos</p>
+    
     <div style="display:flex;align-items:center;justify-content:flex-end;">
-        <button class='btn btn-success' id='accept_mesa'>Guardar</button>
-        <button class='btn btn-secondary' id='accept_mesa' style='margin-left: 22px;'>Cancelar</button>
+        <button class='btn btn-success' id='confirm-generar_excel'>Guardar</button>
+        <button class='btn btn-secondary' id='cancel-generar_excel' style='margin-left: 22px;'>Cancelar</button>
     </div>
-    <p class="error-mesa" style="color:red"></p>
   </div>
 
 </div>
+
+{{!-- ************************* MODAL - CREAR USUARIO ************************************ --}}
+{{!-- ************************* MODAL - CREAR USUARIO ************************************ --}}
 
 <div id="CreateNewUserModal" class="modal">
 
@@ -95,6 +109,8 @@
 
 </div>
 
+{{!-- ************************* MODAL - ELIMINAR USUARIO ************************************ --}}
+{{!-- ************************* MODAL - ELIMINAR USUARIO ************************************ --}}
 
 <div id="deleteUserModal" class="modal">
 
@@ -116,6 +132,8 @@
 
 </div>
 
+{{!-- ************************* MODAL - EDITAR USUARIO ************************************ --}}
+{{!-- ************************* MODAL - EDITAR USUARIO ************************************ --}}
 
 <div id="EditUserModal" class="modal">
 
@@ -159,6 +177,166 @@
   </div>
 
 </div>
+
+
+{{!-- ************************* MODAL - EDITAR PLATO ************************************ --}}
+{{!-- ************************* MODAL - EDITAR PLATO ************************************ --}}
+
+
+<div id="EditPlatoModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content3" style='background-color:#ffd577;'>
+    <h2 id='modal-title'>Editar Producto:</h2>
+    <br>
+    <br>
+    <div class="mb-3">
+		<label class="form-label">Nombre</label>
+		<input id='editar-nombres-de-plato-input' type="input" class="form-control" placeholder="Nombres completos" style="width:235px">
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Precio de venta</label>
+		<input id='editar-precio_de_venta-input' type="number" class="form-control" placeholder="0.0" style="width:235px">
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Costo unitario promedio</label>
+		<input id='editar-costo_unitario_promedio-input' type="number" class="form-control" placeholder="0.0" style="width:235px">
+	</div>
+	<div class="mb-3">
+		<label class="form-label">Categoría</label>
+		<select class="form-select" id="editar-categorias-select" style="width:235px">
+			{{!-- loadPlatosCategories() --}}
+		</select>
+	</div>
+	<button id="confirm-editar_plato" class='btn btn-success'>Confirmar</button>
+	<button id="cancel-editar_plato" class='btn btn-secondary' style="margin-left:20px">Cancelar</button>
+    <br>
+    <br>
+    <p style='color:red;display:none;' id='editar-plato-error'>Llenar todos los campos de forma correcta</p>
+    <br>
+  </div>
+
+</div>
+
+{{!-- ************************* MODAL - CREAR PLATO ************************************ --}}
+{{!-- ************************* MODAL - CREAR PLATO ************************************ --}}
+
+<div id="crearPlatoModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content3">
+    <h2 id='modal-title'>Crear Producto:</h2>
+    <br>
+    <br>
+    <div class="mb-3">
+		<label class="form-label">Nombre</label>
+		<input id='crear-nombres-de-plato-input' type="input" class="form-control" placeholder="Nombre completo" style="width:235px">
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Precio de venta</label>
+		<input id='crear-precio_de_venta-input' type="number" class="form-control" placeholder="0.0" style="width:235px">
+	</div>
+    <div class="mb-3">
+		<label class="form-label">Costo unitario promedio</label>
+		<input id='crear-costo_unitario_promedio-input' type="number" class="form-control" placeholder="0.0" style="width:235px">
+	</div>
+	<div class="mb-3">
+		<label class="form-label">Categoría</label>
+		<select class="form-select" id="crear-categorias-select" style="width:235px">
+			{{!-- loadPlatosCategories() --}}
+		</select>
+	</div>
+	<button id="confirm-crear_plato" class='btn btn-success'>Confirmar</button>
+	<button id="cancel-crear_plato" class='btn btn-secondary' style="margin-left:20px">Cancelar</button>
+    <br>
+    <br>
+    <p style='color:red;display:none;' id='crear-plato-error'>Llenar todos los campos de forma correcta</p>
+	<p style='color:red;display:none;' id='crear-plato-ya-existe'>Ese plato ya existe</p>
+    <br>
+  </div>
+
+</div>
+
+
+{{!-- ************************* MODAL - CREAR CATEGORY ************************************ --}}
+{{!-- ************************* MODAL - CREAR CATEGORY ************************************ --}}
+
+<div id="crearcategoryModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content3">
+    <h2 id='modal-title'>Crear Categoría:</h2>
+    <br>
+    <br>
+    <div class="mb-3">
+		<label class="form-label">Nombre de nueva categoría</label>
+		<input id='crear-nombres-de-category-input' type="input" class="form-control" placeholder="Nombre completo" style="width:235px">
+	</div>
+    
+	<button id="confirm-crear_category" class='btn btn-success'>Confirmar</button>
+	<button id="cancel-crear_category" class='btn btn-secondary' style="margin-left:20px">Cancelar</button>
+    <br>
+    <br>
+    <p style='color:red;display:none;' id='crear-category-error'>Llenar todos los campos de forma correcta</p>
+	<p style='color:red;display:none;' id='crear-category-ya-existe'>Esa categoria ya existe</p>
+    <br>
+  </div>
+
+</div>
+
+
+{{!-- ************************* MODAL - DELETE CATEGORY ************************************ --}}
+{{!-- ************************* MODAL - DELETE CATEGORY ************************************ --}}
+
+<div id="deleteCategoryModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content3">
+    <h2 id='modal-title'>Eliminar Categoría:</h2>
+    <br>
+    <br>
+    <div class="mb-3">
+		<label class="form-label">Nombre de categoría</label>
+		<select class="form-select" id="delete-categorias-select" style="width:235px">
+			{{!-- loadPlatosCategories() --}}
+		</select>
+	</div>
+    
+	<button id="confirm-delete_category" class='btn btn-success'>Confirmar</button>
+	<button id="cancel-delete_category" class='btn btn-secondary' style="margin-left:20px">Cancelar</button>
+    <br>
+    <br>
+    <p style='color:red;display:none;' id='delete-category-error'>Llenar todos los campos de forma correcta</p>
+	<p style='color:red;display:none;' id='delete-category-ya-existe'>Esa categoria ya existe</p>
+    <br>
+  </div>
+
+</div>
+
+
+{{!-- ************************* MODAL - ELIMINAR PLATO ************************************ --}}
+{{!-- ************************* MODAL - ELIMINAR PLATO ************************************ --}}
+
+<div id="deletePlatoModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="custom-modal-content3">
+    <h2 id='modal-title'>Eliminar producto</h2>
+    <br>
+    <br>
+    <div class="mb-3">
+		<label class="form-label">¿Seguro que desea eliminar a <span id='nombreDePlatoContainer' style='font-weight: bold;
+    color: red;'></span>?</label>
+	</div>
+    
+	<button id="delete_plato-confirm_button" class='btn btn-success'>Confirmar</button>
+	<button id="delete_plato-cancel_button" class='btn btn-secondary' style="margin-left:20px">Cancelar</button>
+    
+    <br>
+  </div>
+
+</div>
+
 
 {{!-- <div class="card col-10 ordenes-card">
         
@@ -227,7 +405,17 @@
 <script src="js/controllers/admin/displaySuccessMsg.js"></script>
 <script src="js/controllers/admin/createNewUser.js"></script>
 <script src="js/controllers/admin/deleteUser.js"></script>
+<script src="js/controllers/admin/deletePlato.js"></script>
+<script src="js/controllers/admin/deleteCategory.js"></script>
 <script src="js/controllers/admin/editUser.js"></script>
 <script src="js/controllers/admin/loadPlatos.js"></script>
+<script src="js/controllers/admin/updatePermisoSelect.js"></script>
+<script src="js/controllers/admin/updateCategoriaSelect.js"></script>
+<script src="js/controllers/admin/loadPlatosCategorias.js"></script>
+<script src="js/controllers/admin/editPlato.js"></script>
+<script src="js/controllers/admin/createNewPlato.js"></script>
+<script src="js/controllers/admin/createNewCategory.js"></script>
+<script src="js/controllers/admin/showModalGenerateExcel.js"></script>
+<script src="js/controllers/admin/excel_generate_reporteDeAtenciones.js"></script>
 
 <script src="js/admin.js"></script>

@@ -15,10 +15,10 @@ function navBarClicked(clickedElement){
             <br>
             <br>
             <div class='buttons-container'>
-                <button type="button" class="btn btn-primary">Reporte de atenciones</button><br><br>
-                <button type="button" class="btn btn-primary">Reporte de comandas</button><br><br>
-                <button type="button" class="btn btn-primary">Reporte de cuadres de caja</button><br><br>
-                <button type="button" class="btn btn-primary">Reporte de productos vendidos</button><br><br>
+                <button id='excel-button'type="button" class="btn btn-primary">Reporte de atenciones</button><br><br>
+                <button id='excel-button'type="button" class="btn btn-primary">Reporte de comandas</button><br><br>
+                <button id='excel-button'type="button" class="btn btn-primary">Reporte de cuadre de caja</button><br><br>
+                <button id='excel-button'type="button" class="btn btn-primary">Reporte de productos vendidos</button><br><br>
             </div>
         `
     }

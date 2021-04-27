@@ -23,7 +23,7 @@ function loadUsuarios(){
                     <td>${data[i].names}</td>
                     <td>${data[i].email}</td>
                     <td>
-                        <select class="form-select" value="" id="flexCheckDefault">
+                        <select class="form-select" id="userPermissionSelect">
                             <option value="admin" ${adminSelected}>Aministrador</option>
                             <option value="mesero" ${meseroSelected}>Mesero</option>
                             <option value="caja" ${cajeroSelected}>Caja</option>

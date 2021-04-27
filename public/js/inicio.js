@@ -281,7 +281,7 @@ this.addEventListener('click', (e)=>{
     let clickedElement = e.target
     // console.log(clickedElement.id)
     if(clickedElement.getAttribute('categoria')){
-        filterCategoriesToOnlyDisplayCategory(clickedElement.getAttribute('categoria'))
+        filterCategoriesToOnlyDisplayCategory(clickedElement.textContent)
     }
     //expand comandas
     if(clickedElement.classList=='expand_arrow'){
@@ -414,48 +414,55 @@ const data = {
         'Authorization': 'Bearer '+localStorageToken.accessToken
     },
 }
-$.post('/mesero-load_categories').done(( data ) => {
+
+$.post('/mesero-load_categories').done(( newData ) => {
+    categories = newData
+    let primeraCategoria = newData[0].nombre_de_categoria
     let cat_div = document.querySelector('.horizontal-div')
-    for(let i=0;data.length>i;i++){
+    for(let i=0;newData.length>i;i++){
         let category = document.createElement('div')
-        category.setAttribute('categoria', data[i].ID)
+        category.setAttribute('categoria', newData[i].ID)
         category.classList = 'category'
-        category.textContent = data[i].nombre_de_categoria
+        category.textContent = newData[i].nombre_de_categoria
         cat_div.append(category)
     }
-})
-$.post('/inicio-mesero', data).done(( data ) => {
+
+    $.post('/inicio-mesero', data).done(( data ) => {
         console.log(data)
-    let tHeadRow = $('#main_thead-tr')
-    miNombre = data.nombres
-    for(let i=0;data.headers.length>i;i++){
-        let th = document.createElement('th')
-        th.textContent = data.headers[i]
-        if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'){th.classList.add('hidden')}
-        if(data.headers[i]=='Precio'){th.classList.add('text-align-center')}
-        tHeadRow.append(th)
-    }
-    $('#main_tbody').append(data.html)
-    let trs = document.querySelectorAll('#orden')
-    trs.forEach(tr =>{
-        if(tr.children[5].textContent==0){
-            tr.style.backgroundColor = '#f12929'
-            tr.style.color = 'white'
-        }
-    })
-    mainTable = document.querySelector('table#main_table')
-    categories = mainTable.querySelectorAll('td.cat-selector')
-    filterCategoriesToOnlyDisplayCategory(1)
-        
 
+        let tHeadRow = $('#main_thead-tr')
+        miNombre = data.nombres
+        for(let i=0;data.headers.length>i;i++){
+            let th = document.createElement('th')
+            th.textContent = data.headers[i]
+            if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'){th.classList.add('hidden')}
+            if(data.headers[i]=='Precio'){th.classList.add('text-align-center')}
+            tHeadRow.append(th)
+        }
+        $('#main_tbody').append(data.html)
+        let trs = document.querySelectorAll('#orden')
+        trs.forEach(tr =>{
+            if(tr.children[5].textContent==0){
+                tr.style.backgroundColor = '#f12929'
+                tr.style.color = 'white'
+            }
+        })
+        mainTable = document.querySelector('table#main_table')
+        // categories = mainTable.querySelectorAll('td.cat-selector')
+        filterCategoriesToOnlyDisplayCategory(primeraCategoria)
+            
+
+    })
 })
 
-function filterCategoriesToOnlyDisplayCategory(id){
-        categories.forEach(categoria =>{
-            if(categoria.textContent!=id){
-                categoria.parentElement.style.display='none'
+let platosTable = document.querySelector('#main_table')
+function filterCategoriesToOnlyDisplayCategory(selectedCategory){
+        let rows = platosTable.children[1].querySelectorAll('tr')
+        rows.forEach(row =>{
+            if(row.children[4].textContent!=selectedCategory){
+                row.style.display='none'
             }else{
-                categoria.parentElement.style.display=null
+                row.style.display=null
             }
         })
 }

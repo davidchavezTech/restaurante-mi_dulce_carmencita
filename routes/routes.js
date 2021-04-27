@@ -51,6 +51,9 @@ router.get('/', async (req, res) => {
 router.get('/inicio-caja', async (req, res) => {
     res.render('inicio-caja', {title: 'Caja'});
 });
+router.get('/test', async (req, res) => {
+    res.render('test', {title: 'test'});
+});
 
 router.get('/inicio-mesero', async (req, res) => {
     res.render('inicio-mesero', {title: 'Mesas'});
@@ -189,7 +192,9 @@ router.post('/post_orden', async (req,res)=>{
     numberOfTables = numberOfTables[0]['COUNT(*)']
     let d = new Date();
     let day = d.getDate()
+    if(day<10) day = "0"+day
     let month = d.getMonth()
+    if(month<10) month = "0"+month
     let year = d.getFullYear()
     let currentDate  =  `${day}_${month}_${year}`
     let id = numberOfTables + 1
@@ -421,6 +426,20 @@ router.get('/admin', async (req, res) => {
 router.post('/admin-get_users', adminController.getUsers)
 router.post('/create_new_user', adminController.creatUser)
 router.post('/delete_user', adminController.deleteUser)
+router.post('/delete_plato', adminController.deletePlato)
 router.post('/edit_user', adminController.editUser)
 router.post('/admin-get_platos', adminController.loadPlatos)
+// router.post('/admin-get_permissions', adminController.loadPermissions)
 router.post('/admin-get_categories', adminController.loadCategories)
+router.post('/admin-update_permission', adminController.updatePermission)
+router.post('/admin-update_categoria', adminController.updateCategoria)
+router.post('/admin-get_platos_categorias', adminController.getCategorias)
+router.post('/edit_plato', adminController.editPlato)
+router.post('/create_new_plato', adminController.crearPlato)
+router.post('/create_new_category', adminController.createCategory)
+router.post('/delete_category', adminController.deleteCategory)
+
+//**************************ADMINISTRACIÓN*****************************//
+//**************************ADMINISTRACIÓN*****************************//
+
+router.post('/excel-R_atenciones', adminController.excel_rAtenciones)

@@ -1,32 +1,34 @@
 const pool = require('../database')
 
-async function deleteMesasFromPastDays(){
-    let d = new Date();
-    let day = d.getDate()
-    let month = d.getMonth()
-    let year = d.getFullYear()
-    let currentDate  =  `${day}_${month}_${year}`
-    let result = await pool.pool_meseros.query(`
-        SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
-        WHERE TABLE_NAME NOT LIKE '${currentDate}%' AND TABLE_SCHEMA = 'meseros'`)
-    if(result.length==0) return
-    let mySQLquery = ''
-    for(let i = 0;result.length>i;i++){
-        if(result.length==i+1){
-            mySQLquery += `meseros.${result[i].TABLE_NAME};`
-        }else{
-            mySQLquery += `meseros.${result[i].TABLE_NAME},`
-        }
+// async function deleteMesasFromPastDays(){
+//     let d = new Date();
+//     let day = d.getDate()
+//     let month = d.getMonth()
+//     let year = d.getFullYear()
+//     let currentDate  =  `${day}_${month}_${year}`
+//     let result = await pool.pool_meseros.query(`
+//         SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
+//         WHERE TABLE_NAME NOT LIKE '${currentDate}%' AND TABLE_SCHEMA = 'meseros'`)
+//     if(result.length==0) return
+//     let mySQLquery = ''
+//     for(let i = 0;result.length>i;i++){
+//         if(result.length==i+1){
+//             mySQLquery += `meseros.${result[i].TABLE_NAME};`
+//         }else{
+//             mySQLquery += `meseros.${result[i].TABLE_NAME},`
+//         }
         
-    }
-    await pool.pool_meseros.query(`DROP TABLE ${mySQLquery}`)
-}
-deleteMesasFromPastDays()
+//     }
+//     await pool.pool_meseros.query(`DROP TABLE ${mySQLquery}`)
+// }
+// deleteMesasFromPastDays()
 
 const createMesa = async (req, res)=>{
     let d = new Date();
     let day = d.getDate()
+    if(day<10) day = "0"+day
     let month = d.getMonth()
+    if(month<10) month = "0"+month
     let year = d.getFullYear()
     let currentDate  =  `${day}_${month}_${year}`
     let mesaID = req.body.mesaID

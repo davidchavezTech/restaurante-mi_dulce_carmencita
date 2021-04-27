@@ -24,12 +24,12 @@ function loadPlatos(){
                         <td style="text-align:center">${data[i].precio_venta}</td>
                         <td style="text-align:center">${data[i].costo}</td>
                         <td>
-                            <select class="form-select" value="" id="flexCheckDefault">
+                            <select class="form-select" id="platosCategorySelect">
                                 ${allCategories}
                             </select>
                         </td>
-                        <td  class='center-td'><button type="button" class="btn btn-danger">X</button></td>
-                        <td><button type="button" class="btn btn-success">Editar</button></td>
+                        <td  class='center-td'><button type="button" id='delete-plato' class="btn btn-danger">X</button></td>
+                        <td><button id='edit-plato' type="button" class="btn btn-success">Editar</button></td>
                     </tr>
             `
             }
@@ -38,6 +38,8 @@ function loadPlatos(){
                     
                     <div class="card-body">
                         <h2>Productos</h2>
+                        <br>
+                        <br>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -56,14 +58,21 @@ function loadPlatos(){
                         <div style="position: absolute;top:25px;right:15px;">
                             <div class="mb-12 row">
                                 <div class="col-sm-12">
-                                    <button type="button" class="btn btn-link" style='font-size:20px'>Crear nuevo producto</button>
+                                    <button id='create-plato' type="button" class="btn btn-link" style='font-size:20px'>Crear producto</button>
                                 </div>
                             </div>
                         </div>
-                        <div style="position: absolute;top:25px;right:15px;">
+                        <div style="position: absolute;top:25px;right:200px;">
                             <div class="mb-12 row">
                                 <div class="col-sm-12">
-                                    <button type="button" class="btn btn-link" style='font-size:20px'>Crear nueva categoría</button>
+                                    <button id='create-categoria' type="button" class="btn btn-link" style='font-size:20px'>Crear categoría</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="position: absolute;top:25px;right:385px;">
+                            <div class="mb-12 row">
+                                <div class="col-sm-12">
+                                    <button id='delete-categoria' type="button" class="btn btn-link" style='font-size:20px;color:red'>Eliminar categoría</button>
                                 </div>
                             </div>
                         </div>
