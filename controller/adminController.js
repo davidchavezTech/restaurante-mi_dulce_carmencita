@@ -246,7 +246,7 @@ async function excel_rAtenciones(req, res){
         let response = []
         for(let i=0;correctTableNamesToReturn.length>i;i++){
             let result = await pool.pool_ordenes.query(`
-                SELECT * FROM ${correctTableNamesToReturn[i]} WHERE id='1'
+                SELECT * FROM ${correctTableNamesToReturn[i]} WHERE id='1' LIMIT 1
             `)
             response.push(result)
         }
@@ -258,6 +258,211 @@ async function excel_rAtenciones(req, res){
 }
 
 
+async function excel_rComandas(req, res){
+    try{
+        let ordenesTables = await pool.pool_ordenes.query(`SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_SCHEMA = 'ordenes'`)
+        let correctTableNamesToReturn = []
+        for(let i=0;ordenesTables.length>i;i++){
+            var arr = req.body.dateRange.de.split("-"); 
+            let de = arr[2]+'_'+arr[1]+'_'+arr[0]
+            var arr2 = req.body.dateRange.hasta.split("-"); 
+            let hasta = arr2[2]+'_'+arr2[1]+'_'+arr2[0]
+            let currentTableName = ordenesTables[i].TABLE_NAME
+            // remove _1 (id from table name at the end of it)
+            currentTableName = currentTableName.substr(0, currentTableName.lastIndexOf("_"));
+            // currentTableName = currentTableName.replace(/_/g,"-");
+            if(de<=currentTableName&&hasta>=currentTableName){
+                correctTableNamesToReturn.push(ordenesTables[i].TABLE_NAME)
+            }
+        }
+        let response = []
+        for(let i=0;correctTableNamesToReturn.length>i;i++){
+            let result = await pool.pool_ordenes.query(`
+                SELECT * FROM ${correctTableNamesToReturn[i]}
+            `)
+            response.push(result)
+        }
+        response.length > 0 ? res.json(response) : res.json(false)
+    }catch(err){
+        console.log(err)
+        res.json(err)
+    }
+}
+
+
+async function excel_rCaja(req, res){
+    response = []
+    try{
+        let result = await pool.restaurante.query(`
+                SELECT * FROM caja
+            `)
+        for(let i=0;result.length>i;i++){
+            let splitDate = result[i].date.toString()
+            splitDate = splitDate.split(' ')
+            let month
+            switch (splitDate[1]){
+                case 'Jan':
+                    month = '01'
+                break
+                case 'Feb':
+                    month = '02'
+                break
+                case 'Mar':
+                    month = '03'
+                break
+                case 'Apr':
+                    month = '04'
+                break
+                case 'May':
+                    month = '05'
+                break
+                case 'Jun':
+                    month = '06'
+                break
+                case 'Jul':
+                    month = '07'
+                break
+                case 'Aug':
+                    month = '08'
+                break
+                case 'Sep':
+                    month = '09'
+                break
+                case 'Oct':
+                    month = 10
+                break
+                case 'Nov':
+                    month = 11
+                break
+                case 'Dec':
+                    month = 12
+                break
+            }
+            switch (splitDate[1]){
+                case 'Ene':
+                    month = '01'
+                break
+                case 'Feb':
+                    month = '02'
+                break
+                case 'Mar':
+                    month = '03'
+                break
+                case 'Abr':
+                    month = '04'
+                break
+                case 'May':
+                    month = '05'
+                break
+                case 'Jun':
+                    month = '06'
+                break
+                case 'Jul':
+                    month = '07'
+                break
+                case 'Ago':
+                    month = '08'
+                break
+                case 'Sep':
+                    month = '09'
+                break
+                case 'Oct':
+                    month = 10
+                break
+                case 'Nov':
+                    month = 11
+                break
+                case 'Dec':
+                    month = 12
+                break
+            }
+            let date = `${splitDate[3]}-${month}-${splitDate[2]}`
+            //Correct format is 2021-04-22
+            function checkDateScope(de, dateToCompare, hasta){
+                let deSplit = de.split('-')
+                deSplit = deSplit.map(function(x) {
+                    return parseInt(x)
+                });
+                let dateToCompareSplit = dateToCompare.split('-')
+                dateToCompareSplit = dateToCompareSplit.map(function(x) {
+                    return parseInt(x)
+                });
+                let hastaSplit = hasta.split('-')
+                hastaSplit = hastaSplit.map(function(x) {
+                    return parseInt(x)
+                });
+                for(let j=0;hastaSplit.length>j;j++){
+                    if(!(deSplit[j]<=dateToCompareSplit[j])){
+                        return false
+                    }
+                }
+                for(let j=0;hastaSplit.length>j;j++){
+                    if(!(hastaSplit[j]>=dateToCompareSplit[j])){
+                        return false
+                    }
+                }
+                return true
+            }
+
+            if(checkDateScope(req.body.dateRange.de, date, req.body.dateRange.hasta)){
+                response.push(result[i])
+            }
+        }
+        response.length > 0 ? res.json(response) : res.json(false)
+    }catch(err){
+        console.log(err)
+        res.json(false)
+    }
+}
+
+async function excel_rProductos(req, res){
+    try{
+        let listaDeProdutos = await pool.restaurante.query(`SELECT nombre_producto, precio_venta, costo, categoria FROM productos`)
+        let nombres_de_todas_las_mesas = await pool.pool_ordenes.query(`SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_SCHEMA = 'ordenes'
+        `)
+        let nombres_de_mesas_para_seleccionar = []
+        for(let i=0;nombres_de_todas_las_mesas.length>i;i++){
+            var arr = req.body.dateRange.de.split("-"); 
+            let de = arr[2]+'_'+arr[1]+'_'+arr[0]
+            var arr2 = req.body.dateRange.hasta.split("-"); 
+            let hasta = arr2[2]+'_'+arr2[1]+'_'+arr2[0]
+            let currentTableName = nombres_de_todas_las_mesas[i].TABLE_NAME
+            // remove _1 (id from table name at the end of it)
+            currentTableName = currentTableName.substr(0, currentTableName.lastIndexOf("_"));
+            // currentTableName = currentTableName.replace(/_/g,"-");
+            if(de<=currentTableName&&hasta>=currentTableName){
+                nombres_de_mesas_para_seleccionar.push(nombres_de_todas_las_mesas[i].TABLE_NAME)
+            }
+        }
+        //add property quantity to listaDeProdutos
+
+        for(let i=0;listaDeProdutos.length>i;i++){
+            listaDeProdutos[i].quantity = 0
+        }
+
+        for(let i=0;nombres_de_mesas_para_seleccionar.length>i;i++){
+            let result = await pool.pool_ordenes.query(`
+                SELECT nombre_producto, cantidad FROM ${nombres_de_mesas_para_seleccionar[i]}
+            `)
+            for(let j=1;result.length>j;j++){
+                console.log(j)
+                let nombreDelProducto = result[j].nombre_producto
+                let qty = result[j].cantidad
+                for(let k=0;listaDeProdutos.length>k;k++){
+                    if(listaDeProdutos[k].nombre_producto==nombreDelProducto) {
+                        listaDeProdutos[k].quantity += qty
+                    }
+                }
+            }
+        }
+        listaDeProdutos.length > 0 ? res.json(listaDeProdutos) : res.json(false)
+    }catch(err){
+        console.log(err)
+        res.json(err)
+    }
+}
 module.exports = {
     getUsers,
     creatUser,
@@ -273,6 +478,9 @@ module.exports = {
     deletePlato,
     createCategory,
     deleteCategory,
-    excel_rAtenciones
+    excel_rAtenciones,
+    excel_rComandas,
+    excel_rCaja,
+    excel_rProductos
     // loadPermissions
 }

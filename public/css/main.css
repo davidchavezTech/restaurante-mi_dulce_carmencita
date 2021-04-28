@@ -254,4 +254,16 @@ input[type=number] {
 }.center-td{
     display: flex;
     justify-content: center;
+}#logoutCont{
+    position: absolute;
+    bottom: 10px;
+    width: 100vw;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-end;
+}#logoutBtn{
+    z-index: 2;
+    cursor: pointer;
+    display: none;
 }

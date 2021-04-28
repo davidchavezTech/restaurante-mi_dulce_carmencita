@@ -6,7 +6,7 @@ function showModalGenerateExcel(clickedElement){
 
     if(de.value==''||hasta.value=='') return excelErrorMsg.style.display = 'block'
     if (modalTitle=='Generar reporte de atenciones') excel_generate_reporteDeAtenciones('Reporte de atenciones', {de, hasta})
-    else if (modalTitle=='Generar reporte de comandas') excel_generate_reporteDeAtenciones('Reporte de comandas', {de, hasta})
-    else if (modalTitle=='Generar reporte de cuadre de caja') excel_generate_reporteDeAtenciones('Reporte de cuadre de caja', {de, hasta})
-    else if (modalTitle=='Generar reporte de productos vendidos') excel_generate_reporteDeAtenciones('Reporte de productos vendidos', {de, hasta})
+    else if (modalTitle=='Generar reporte de comandas') excel_generate_reporteDeComandas('Reporte de comandas', {de, hasta})
+    else if (modalTitle=='Generar reporte de cuadre de caja') excel_generate_reporteDeCaja('Cuadre de caja', {de, hasta})
+    else if (modalTitle=='Generar reporte de productos vendidos') excel_generate_reporteDeProductos('Productos vendidos', {de, hasta})
 }

@@ -13,18 +13,29 @@ const meseroController = require('../controller/meseroController')
 const adminController = require('../controller/adminController')
 
 let authorizedURLsForMesero = [
-    'http://localhost:4000/inicio-mesero',
+    '/inicio-mesero',
 ]
 let authorizedURLsForCaja = [
-    'http://localhost:4000/inicio-caja',
+    '/inicio-caja',
 ]
 let authorizedURLsForCocina = [
-    'http://localhost:4000/cocina',
+    '/cocina',
 ]
 let authorizedURLsForAdmin = [
-    'http://localhost:4000/admin',
+    '/admin',
 ]
+function redirect(permission){
+    let  matchFound
+    if(permission=='mesero') ( matchFound = authorizedURLsForMesero )
+    else if(permission=='admin') (matchFound = authorizedURLsForAdmin )
+    else if(permission=='caja') (matchFound = authorizedURLsForCaja )
+    else if(permission=='cocina') (matchFound = authorizedURLsForCocina )
+    else if(!matchFound) return false
+    
+    return matchFound
+}
 function authorizeURL(permission, url){
+    let shortenedURL = url.substr(url.lastIndexOf("/"), url.length)
     let searchArray, matchFound
     if(permission=='mesero') (searchArray = authorizedURLsForMesero )
     else if(permission=='admin') (searchArray = authorizedURLsForAdmin )
@@ -32,12 +43,12 @@ function authorizeURL(permission, url){
     else if(permission=='cocina') (searchArray = authorizedURLsForCocina )
     else if(!searchArray) return false
     for(let i=0;searchArray.length>i;i++){
-        if(searchArray[i]==url){
+        if(searchArray[i]==shortenedURL){
             matchFound=true
             i=searchArray.length
         }
     }
-    return matchFound ? true : false
+    return matchFound ? matchFound : false
 }
 //Nos permite ver la info del formulario que se envió por <form></form>
 router.use(express.urlencoded({ extended: true}));
@@ -71,10 +82,10 @@ router.post('/login', async (req, res, next) => {
         const foundUserspassword = foundUser[0].pwd
         try{
             if(await bcrypt.compare(req.body.password, foundUserspassword)){
-                if(setPermission=='mesero') url='http://localhost:4000/inicio-mesero'
-                if(setPermission=='caja') url='http://localhost:4000/inicio-caja'
-                if(setPermission=='cocina') url='http://localhost:4000/cocina'
-                if(setPermission=='admin') url='http://localhost:4000/admin'
+                if(setPermission=='mesero') url='/inicio-mesero'
+                if(setPermission=='caja') url='/inicio-caja'
+                if(setPermission=='cocina') url='/cocina'
+                if(setPermission=='admin') url='/admin'
                 //create the user object
                 const user = {
                                 email: foundUsersEmail,
@@ -181,7 +192,7 @@ router.post('/inicio-mesero', isUserLoggedIn, async (req, res) => {
     res.json(responseObject)
 })
 router.post('/authenticate', isUserLoggedIn, (req, res) => {
-    res.json('Correct JWT')
+    res.json(req.user.nombre)
 })
 
 router.post('/post_orden', async (req,res)=>{
@@ -193,7 +204,7 @@ router.post('/post_orden', async (req,res)=>{
     let d = new Date();
     let day = d.getDate()
     if(day<10) day = "0"+day
-    let month = d.getMonth()
+    let month = d.getMonth() +1
     if(month<10) month = "0"+month
     let year = d.getFullYear()
     let currentDate  =  `${day}_${month}_${year}`
@@ -254,7 +265,9 @@ router.post('/post_orden', async (req,res)=>{
 router.post('/get_todays_orders', async (req,res)=>{
     let d = new Date();
     let day = d.getDate()
-    let month = d.getMonth()
+    if(day<10) day = '0' + day
+    let month = d.getMonth() +1
+    if(month<10) month = '0' + month
     let year = d.getFullYear()
     currentDate  =  `${day}_${month}_${year}`
     //get all the tables with the name of todays date--
@@ -319,6 +332,7 @@ router.post('/caja-caja_amount_request', isUserLoggedIn, cajaModel.caja_amount_r
 router.post('/caja-cerrar_caja', isUserLoggedIn, async (req, res)=>{
     let d = new Date();
     let day = d.getDate()
+    if(day <10) day = "0" + day
     let month = d.getMonth() + 1
     if(month<10) month = "0" + month
     let year = d.getFullYear()
@@ -330,6 +344,7 @@ router.post('/caja-cerrar_caja', isUserLoggedIn, async (req, res)=>{
 router.post('/esta_caja_abierta', isUserLoggedIn, async (req,res)=>{
     let d = new Date();
     let day = d.getDate()
+    if(day <10) day = "0" + day
     let month = d.getMonth() + 1
     if(month<10) month = "0" + month
     let year = d.getFullYear()
@@ -371,13 +386,14 @@ router.post('/admin-cancelar_whole_order', async (req, res)=>{
 function isUserLoggedIn(req, res, next){
     const authHeader = req.body.headers.Authorization
     const url = req.body.url
-    console.log(url)
     const token = authHeader && authHeader.split(' ')[1]
     if(token == null) return res.sendStatus(401)
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) =>{
         if (err) return res.send(false)
         //Check if they are allowed to be in this url
+        let checkURL = url.slice(-6)
+        if(checkURL==':4000/') return res.send(redirect(user.permission))
         if(!authorizeURL(user.permission, url)) return res.send(false)
         req.user = user
         next()
@@ -443,3 +459,6 @@ router.post('/delete_category', adminController.deleteCategory)
 //**************************ADMINISTRACIÓN*****************************//
 
 router.post('/excel-R_atenciones', adminController.excel_rAtenciones)
+router.post('/excel-R_comandas', adminController.excel_rComandas)
+router.post('/excel-R_caja', adminController.excel_rCaja)
+router.post('/excel-R_productos', adminController.excel_rProductos)

@@ -41,22 +41,23 @@ function loadPlatos(){
         })
         mainTable = document.querySelector('table#main_table')
         categories = mainTable.querySelectorAll('td.cat-selector')
-        filterCategoriesToOnlyDisplayCategory(1)
+        
     })
     $.post('/mesero-load_categories').done(( data ) => {
         let cat_div = document.querySelector('.horizontal-div')
         for(let i=0;data.length>i;i++){
             let category = document.createElement('div')
-            category.setAttribute('categoria', data[i].ID)
+            category.setAttribute('categoria', data[i].nombre_de_categoria)
             category.classList = 'category category-cocina-colors'
             category.textContent = data[i].nombre_de_categoria
             cat_div.append(category)
+            filterCategoriesToOnlyDisplayCategory(data[0].nombre_de_categoria)
         }
     })
 }
-function filterCategoriesToOnlyDisplayCategory(id){
+function filterCategoriesToOnlyDisplayCategory(categoriaName){
         categories.forEach(categoria =>{
-            if(categoria.textContent!=id){
+            if(categoria.textContent!=categoriaName){
                 categoria.parentElement.style.display='none'
             }else{
                 categoria.parentElement.style.display=null

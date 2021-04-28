@@ -5,7 +5,9 @@ const getOrders = async (req, res)=>{
         let ordenes = []
         let d = new Date();
         let day = d.getDate()
-        let month = d.getMonth()
+        if(day<10) day="0"+day
+        let month = d.getMonth() + 1
+        if(month<10) month="0"+month
         let year = d.getFullYear()
         currentDate  =  `${day}_${month}_${year}`
         //get all the tables with the name of todays date--

@@ -24,7 +24,6 @@ restaurante.getConnection((err, connection) => {
     if (connection) {
 
     connection.release();
-    console.log('DB is connected');
 }
     return;
 })
@@ -44,7 +43,6 @@ pool_ordenes.getConnection((err, connection) => {
     if (connection) {
 
     connection.release();
-    console.log('DB is connected');
 }
     return;
 })
@@ -64,7 +62,6 @@ pool_meseros.getConnection((err, connection) => {
     if (connection) {
 
     connection.release();
-    console.log('DB is connected');
 }
     return;
 })

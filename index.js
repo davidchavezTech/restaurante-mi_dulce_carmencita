@@ -17,9 +17,6 @@ liveReloadServer.server.once("connection",()=>{
         liveReloadServer.refresh("/");
     }, 100);
 })
-app.get('/fuck', (req, res) => {
-    res.sendFile(__dirname + '/fuck.html');
-  })
 
 //view engine setup
 app.engine('hbs', hbs({extname: 'hbs', defaultLayout: 'layout', layoutsDir: __dirname + '/views/layouts/'}))
@@ -44,7 +41,6 @@ app.use(require('./routes/routes'));
 
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
     
     //Nueva orden de meseros
     socket.on('Nueva orden', (msg) => {
@@ -71,7 +67,29 @@ io.on('connection', (socket) => {
     })
 });
 
+//log IP
 
-http.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+const { networkInterfaces } = require('os');
+
+const nets = networkInterfaces();
+const results = Object.create(null); // Or just '{}', an empty object
+
+for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+        if (net.family === 'IPv4' && !net.internal) {
+            if (!results[name]) {
+                results[name] = [];
+            }
+            results[name].push(net.address);
+        }
+    }
+}
+// console.log(results)
+console.log(results.Ethernet[0]+':'+PORT)
+
+
+// http.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+http.listen(PORT);
 
 

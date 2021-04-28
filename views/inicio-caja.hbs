@@ -146,9 +146,16 @@
     <div class="custom-modal-content" style="width:545px">
         <h1>Cerrar caja</h1>
         <br>
-        <h4>Se está cerrando caja con:</h4>
+        <h4>Se debe cerrar caja con:</h4>
         <h1 id='cerrar_caja-monto' style='color:red'></h1>
-        <button id="confirm-cerrar_caja" class='btn btn-success'>Confirmar</button>
+        <div class="mb-3">
+            <h4>Se está cerrarando caja con:</h4>
+            <input id='cerrar_caja-input' type="number" class="form-control" placeholder="0.00" style="width:235px" min="0">
+            <br>
+            <label class="form-label" id="cerrar_caja-error" style="color:red;display:none">Debe de digitar un monto mayor o igual a 0</label>
+            <label class="form-label" id="cerrar_caja-connection_error" style="color:red;display:none">Error de conexión</label>
+        </div>
+        <button id="confirm-cerrar_caja" class='btn btn-success' disabled>Confirmar</button>
         <button id="cancel-cerrar_caja" class='btn btn-secondary'>Cancelar</button>
     </div>
 

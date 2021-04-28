@@ -18,7 +18,7 @@ this.addEventListener('click', (e)=>{
     }else if(clickedElement.classList.contains('nav-link')){
         navBarClicked(clickedElement)
     }else if(clickedElement.classList.contains('category-cocina-colors')){
-        filterCategoriesToOnlyDisplayCategory(clickedElement.getAttribute('categoria'))
+        filterCategoriesToOnlyDisplayCategory(clickedElement.textContent)
     }else if(clickedElement.parentElement.id=='orden'){
         setStock(clickedElement)
     }

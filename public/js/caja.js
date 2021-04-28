@@ -49,26 +49,27 @@ send_paid_orderBtn.addEventListener('click',()=>{
         if(data==true){
             let efectivoPayment = efectivoInput.value
             if(efectivoPayment != ''){
-                efectivoPayment = parseFloat(efectivoPayment, 2)
+                efectivoPayment = parseFloat(efectivoPayment, 1)
             }else{
                 efectivoPayment = 0
             }
             let tarjetaPayment = tarjetaInput.value
             if(tarjetaPayment != ''){
-                tarjetaPayment = parseFloat(tarjetaPayment, 2)
+                tarjetaPayment = parseFloat(tarjetaPayment, 1)
             }else{
                 tarjetaPayment = 0
             }
             let yapePayment = yapeInput.value
             if(yapePayment != ''){
-                yapePayment = parseFloat(yapePayment, 2)
+                yapePayment = parseFloat(yapePayment, 1)
             }else{
                 yapePayment = 0
             }
-            let ammountPaid = efectivoPayment + tarjetaPayment + yapePayment
+            // let ammountPaid = efectivoPayment + tarjetaPayment + yapePayment
             let currentTotal = totalCheckout.textContent
-            currentTotal = parseFloat(currentTotal, 2)
-            let newCajaMoney = ammountPaid - currentTotal
+            currentTotal = parseFloat(currentTotal, 1)
+            let ingresoFisico = efectivoPayment - currentTotal
+            // let newCajaMoney = ammountPaid - currentTotal
             // cajaMoney = cajaMoney + newCajaMoney
             // localStorage.setItem('cajaMoney', cajaMoney)
             findMesa.closest('.ordenes-card').remove()
@@ -80,7 +81,9 @@ send_paid_orderBtn.addEventListener('click',()=>{
             totalCheckout.textContent = '0'
             //second request to insert the payment into ddbb
             let newData = {
-                ingresos: newCajaMoney,
+                ingresos: ingresoFisico,
+                tarjeta: tarjetaPayment,
+                yape: yapePayment,
                 url: window.location.href,
                 type: 'POST',
                 contentType: 'application/json',
@@ -338,7 +341,6 @@ numero_de_mesa_input.addEventListener('keyup', (e)=> {
     getHowMuchIsOwed()
 })
 function getHowMuchIsOwed(clickedElement){
-
     let monto = 0
     let mesaID = numero_de_mesa_input.value
     let currentMesa
@@ -367,9 +369,9 @@ function getHowMuchIsOwed(clickedElement){
     }
     
     pagarInputs.forEach(input=>{
-        let plata
-        (!input.value) ? plata = 0 : plata = input.value
-        plata = parseFloat(plata,2)
+        let plata = input.value
+        plata == '' ? plata = 0 :
+        plata = parseFloat(plata)
         pagado = pagado + plata
     })
     if(monto>pagado){
@@ -377,9 +379,13 @@ function getHowMuchIsOwed(clickedElement){
     }else{
         faltaContainer.textContent = 'Vuelto: '
     }
-    currentMesa.querySelector('#precio_total_de_orden').textContent = monto
-    totalCheckout.textContent = Math.abs(monto-pagado)
+    currentMesa.querySelector('#precio_total_de_orden').textContent = tF(monto)
+    monto = parseFloat(monto)
+    let montoParaRecortar = (monto-pagado)
+
+    totalCheckout.textContent = tF(montoParaRecortar)
     let currentTotal = currentMesa.querySelector('#precio_total_de_orden').textContent
+    currentTotal = parseFloat(currentTotal)
     //if total = 0, that means all ordenes have been cancelled=> check the checkbox for 'cancelar todo'
     if(currentTotal==0){
         currentMesa.querySelector('#cancelar_whole_orden').checked = true
@@ -439,7 +445,7 @@ function loadMesasDelDia(){
                         <td>
                             <input class="form-check-input" type="checkbox" id="flexCheckDefault" ${cancelada_pagada}>
                         </td>
-                        <td>${total}</td>
+                        <td>${tF(total)}</td>
                     </tr>
                 `
                 trs= trs+tr
@@ -461,7 +467,7 @@ function loadMesasDelDia(){
                             ${trs}
                         </tbody>
                     </table>
-                    <h2 style="display:inline-block">Total:&nbsp;</h2><h2 id="precio_total_de_orden" style="display:inline-block">${total_de_current_mesa}</h2>
+                    <h2 style="display:inline-block">Total:&nbsp;</h2><h2 id="precio_total_de_orden" style="display:inline-block">${tF(total_de_current_mesa)}</h2>
                     <div style="position: absolute;top:25px;right:15px;">
                         <div class="mb-12 row">
                             <div class="col-sm-12">
@@ -551,7 +557,7 @@ confirmCerrarCaja.addEventListener('click', ()=>{
         headers: {
             'Authorization': 'Bearer '+localStorageToken.accessToken
         },
-        monto: montoParaCerrarCajaH4element.textContent
+        monto: document.querySelector('#cerrar_caja-input').value
     }
     $.post('/caja-cerrar_caja', data).done(( data ) => {
         localStorage.removeItem('JWT')
@@ -561,4 +567,9 @@ confirmCerrarCaja.addEventListener('click', ()=>{
 })
 document.querySelector('#cancel-cerrar_caja').addEventListener('click',()=>{
     modalCerrarCaja.style.display='none'
+})
+
+document.querySelector('#cerrar_caja-input').addEventListener('keyup', (e)=>{
+    if(e.target.value>0) document.querySelector('#confirm-cerrar_caja').disabled = false
+    else document.querySelector('#confirm-cerrar_caja').disabled = true
 })

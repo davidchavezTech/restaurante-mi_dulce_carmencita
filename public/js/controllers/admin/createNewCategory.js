@@ -20,6 +20,7 @@ function createNewCategory(){
         camposIncorrectosCrearCategoriaMsg.style.display = 'none'
         console.log(response)
         createCategory_emptyFields()
+        loadPlatosCategorias()
         loadPlatos()
         displaySuccessMsg('Categoría creada exitosamente')
     })

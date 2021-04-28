@@ -579,7 +579,7 @@ document.querySelector('#accept_mesa').addEventListener('click', (e)=>{
                 </div>
             </div>
             `
-            comandas_container.append(div)
+            container.append(div)
             modal.style.display = "none";
             input.value = ''
         }

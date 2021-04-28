@@ -20,9 +20,13 @@ const findCaja = async (name, date)=>{
     return(seAbrioCajaCon.length==1) ? seAbrioCajaCon[0].abrir : false
 }
 const cerrarCaja = async (res, name, date, monto,)=>{
+    let d = new Date()
+    let hours = d.getHours()
+    let minutes = d.getMinutes()
+    let currentTime = `${hours}:${minutes}`
     try{
         await pool.restaurante.query(`UPDATE caja
-        SET cerrar='${monto}'
+        SET cerrar='${monto}', horaCerrarCaja = '${currentTime}'
         WHERE cajero = '${name}' AND date = '${date}' AND cerrar IS NULL LIMIT 1`);
     }catch(err){
         console.log(err)
@@ -46,17 +50,24 @@ const postPayment = async (req, res)=>{
 const postNuevoIngresoAcaja = async (req, res)=>{
     let d = new Date();
     let day = d.getDate()
+    if(day<10) day = "0" + day
     let month = d.getMonth() + 1
     if(month<10) month = "0" + month
     let year = d.getFullYear()
     let currentDate  =  `${year}-${month}-${day}`
     try{
-        let storedIngresos = await pool.restaurante.query(`SELECT ingresos FROM caja 
+        let storedIngresos = await pool.restaurante.query(`SELECT ingresos, Tarjeta, Yape FROM caja 
             WHERE cajero='${req.user.nombre}' AND date='${currentDate}' AND cerrar IS NULL LIMIT 1`);
-        storedIngresos = storedIngresos[0].ingresos
-        let nuevosIngresos = parseFloat(req.body.ingresos, 2)
-        let ingresosParaInsertar = storedIngresos + nuevosIngresos
-        await pool.restaurante.query(`UPDATE caja SET ingresos='${ingresosParaInsertar}'
+        let efectivoGuardado = storedIngresos[0].ingresos
+        let dineroDeTarjetaGuardado = storedIngresos[0].Tarjeta
+        let yapeIngresosGuardados = storedIngresos[0].Yape
+        let nuevosIngresosDeEfectivo = parseFloat(req.body.ingresos, 2)
+        let nuevosIngresosDeTarjeta = parseFloat(req.body.tarjeta, 2)
+        let nuevosIngresosDeYape = parseFloat(req.body.yape, 2)
+        let ingresosDeDineroFisicoParaInsertar = efectivoGuardado + nuevosIngresosDeEfectivo
+        let ingresosDeTarjetaParaInsertar = dineroDeTarjetaGuardado + nuevosIngresosDeTarjeta
+        let ingresosYapeParaInsertar = yapeIngresosGuardados + nuevosIngresosDeYape
+        await pool.restaurante.query(`UPDATE caja SET ingresos='${ingresosDeDineroFisicoParaInsertar}', Tarjeta='${ingresosDeTarjetaParaInsertar}', Yape='${ingresosYapeParaInsertar}'
         WHERE cajero='${req.user.nombre}' AND date='${currentDate}' AND cerrar IS NULL LIMIT 1`);
         res.json(true)
     }catch(err){
@@ -68,6 +79,7 @@ const postNuevoIngresoAcaja = async (req, res)=>{
 const caja_amount_request = async (req, res) =>{
     let d = new Date();
     let day = d.getDate()
+    if(day<10) day = "0" + day
     let month = d.getMonth() + 1
     if(month<10) month = "0" + month
     let year = d.getFullYear()
