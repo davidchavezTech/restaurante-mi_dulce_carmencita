@@ -7,6 +7,7 @@ const hbs = require('express-handlebars');
 const bcrypt = require('bcrypt')
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const open = require( 'open' );
 
 const publicDirectory = path.join(__dirname, 'public')
 
@@ -90,6 +91,8 @@ console.log(results.Ethernet[0]+':'+PORT)
 
 
 // http.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-http.listen(PORT);
+http.listen(PORT, async () => {
+    await open( `http://${results.Ethernet[0]}:${PORT}` );
+});
 
 
