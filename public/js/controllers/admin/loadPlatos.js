@@ -16,16 +16,34 @@ function loadPlatos(){
                 categoriasOptions += `<option value="${newData[i].nombre_de_categoria}">${newData[i].nombre_de_categoria}</option>`
             }
             let trs=''
+            
             for(let i=0;data.length>i;i++){
+                let cocinaOptions
+                if(data[i].cocina=='Piqueos'){
+                    cocinaOptions = `
+                    <option value='Piqueos'>Piqueos</option>
+                    <option value='Almuerzos'>Almuerzos</option>
+                    `
+                }else{
+                    cocinaOptions = `
+                    <option value='Almuerzos'>Almuerzos</option>
+                    <option value='Piqueos'>Piqueos</option>
+                    `
+                }
                 let firstcategoriaOption = `<option value="${data[i].categoria}">${data[i].categoria}</option>`
                 let allCategories = firstcategoriaOption+categoriasOptions
                 trs+=`<tr id="${data[i].id}">
                         <td>${data[i].nombre_producto}</td>
-                        <td style="text-align:center">${data[i].precio_venta}</td>
-                        <td style="text-align:center">${data[i].costo}</td>
+                        <td style="text-align:center">${tF(data[i].precio_venta)}</td>
+                        <td style="text-align:center">${tF(data[i].costo)}</td>
                         <td>
                             <select class="form-select" id="platosCategorySelect">
                                 ${allCategories}
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-select" id="platosCocinaSelect">
+                                ${cocinaOptions}
                             </select>
                         </td>
                         <td  class='center-td'><button type="button" id='delete-plato' class="btn btn-danger">X</button></td>
@@ -47,6 +65,7 @@ function loadPlatos(){
                                     <th>Precio de venta</th>
                                     <th>Costo unitario promedio</th>
                                     <th>Categoría</th>
+                                    <th>Cocina</th>
                                     <th>Eliminar</th>
                                     <th>Editar</th>
                                 </tr>

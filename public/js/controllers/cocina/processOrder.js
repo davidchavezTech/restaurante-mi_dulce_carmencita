@@ -15,7 +15,7 @@ function processOrder(clickedElement){
         console.log(data)
         if(data){
             clickedElement.closest('.ordenes-card').remove()
-            emmitOrdenCompleta(tableID[0])
+            // emmitOrdenCompleta(tableID[0])
             
             //check if there are orders pending, if not, then show "No hay ordenes para preparar todavía..."
             if(document.getElementById('ordenes_container').children.length==0){

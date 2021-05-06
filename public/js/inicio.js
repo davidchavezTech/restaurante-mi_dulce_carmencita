@@ -64,8 +64,9 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
                 <td class="hidden">${data[i][j].id}</td>
                 <td style="padding-top:15px;">${data[i][j].nombre_producto}</td>
                 <td class="text-align-center" style="padding-top:15px;">${data[i][j].cantidad}</td>
-                <td class="text-align-center" style="padding-top:15px;">${data[i][j].precio}</td>
+                <td class="text-align-center" style="padding-top:15px;">${tF(data[i][j].precio)}</td>
                 <td class="hidden cat-selector">${data[i][j].stock}</td>
+                <td class="hidden cat-selector">${data[i][j].cocina}</td>
                 <td class="hidden">1</td>
             </tr>`
         }
@@ -94,6 +95,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
                         <th class="text-align-center">Precio</th>
                         <th class="hidden">Categoría</th>
                         <th class="hidden">stock</th>
+                        <th class="hidden">cocina</th>
                     </tr>
                 </thead>
                 <tbody id="main_tbody">
@@ -102,7 +104,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
             </table>
             <div class="space-between">
                 <div class="total-container">
-                    <h1 style="display:inline-block">Total:&nbsp;&nbsp; </h1><span id="precio_total">${total}</span>
+                    <h1 style="display:inline-block">Total:&nbsp;&nbsp; </h1><span id="precio_total">${tF(total)}</span>
                 </div>
                 <div>
                     <img src="img/check.svg" class="check${display}" alt="">
@@ -118,6 +120,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
 $("#main_table").on("click", "tr", function(e) {
     let orig = $(e.currentTarget)[0]
     if(orig.id == 'main_thead-tr') {return}
+    if(orig.style.color == 'white') {return}
     if(orig.children[5].textContent == 0) {return}
     let clickedRowID = orig.children[0].textContent
     let copy = orig.cloneNode(true);
@@ -145,6 +148,10 @@ $("#main_table").on("click", "tr", function(e) {
                 //append the copied <tr>
                 container.children[0].children[1].children[0].children[1].append(copy)
                 i=containerTableRows.children.length
+                //next code expands div when you add a new order --This fix is needed for mobile as on pc, it does it automatically
+                let divToBeExpanded = container.children[0].children[1]
+                divToBeExpanded.style.maxHeight = divToBeExpanded.offsetHeight
+
             }
         }else{//no platos selected, just append the copied <tr> and don't search if already in there
             //append TR copy
@@ -161,7 +168,7 @@ $("#main_table").on("click", "tr", function(e) {
             let currentTotal = quantity*precio
             completeTotal = completeTotal + currentTotal
         }
-        document.querySelector('#precio_total').textContent = completeTotal
+        document.querySelector('#precio_total').textContent = tF(completeTotal)
         
         //add the color effect of adding element
         //add glow effect
@@ -194,6 +201,7 @@ function agregarPlatoaDDBB(orig){
     let precio = orig.children[3].textContent
     let categoria = orig.children[4].textContent
     let stock = orig.children[5].textContent
+    let cocina = orig.children[6].textContent
     const data = {
         url: window.location.href,
         type: 'POST',
@@ -271,7 +279,7 @@ $("#comanda-selected").on("click", "tr", function(e) {
             let currentTotal = quantity*precio
             completeTotal = completeTotal + currentTotal
         }
-        document.querySelector('#precio_total').textContent = completeTotal
+        document.querySelector('#precio_total').textContent = tF(completeTotal)
         dropPlatoFromDDBB(e.currentTarget)
     }
 })
@@ -380,7 +388,8 @@ function emitAndSaveToDDBBSelectedTable(clickedElement){
                 nombre_producto : tableRow.children[1].textContent,
                 precio: tableRow.children[3].textContent, 
                 cantidad: tableRow.children[2].textContent, 
-                total: currentTotal, 
+                total: currentTotal,
+                cocina:tableRow.children[6].textContent
             }
             data.push(newObject)
         })
@@ -435,7 +444,7 @@ $.post('/mesero-load_categories').done(( newData ) => {
         for(let i=0;data.headers.length>i;i++){
             let th = document.createElement('th')
             th.textContent = data.headers[i]
-            if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'){th.classList.add('hidden')}
+            if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'||data.headers[i]=='cocina'){th.classList.add('hidden')}
             if(data.headers[i]=='Precio'){th.classList.add('text-align-center')}
             tHeadRow.append(th)
         }
@@ -512,7 +521,7 @@ document.querySelector('#accept_mesa').addEventListener('click', (e)=>{
             }
         }
         if(!stopper){
-
+            document.querySelector('.error-mesa').textContent=''
             let div = document.createElement('div')
             div.id = input.value
             div.classList.add('mesa_container')
@@ -563,6 +572,7 @@ document.querySelector('#accept_mesa').addEventListener('click', (e)=>{
                             <th class="text-align-center">Precio</th>
                             <th class="hidden">Categoría</th>
                             <th class="hidden">stock</th>
+                            <th class="hidden">cocina</th>
                         </tr>
                     </thead>
                     <tbody id="main_tbody"> 
@@ -579,6 +589,9 @@ document.querySelector('#accept_mesa').addEventListener('click', (e)=>{
                 </div>
             </div>
             `
+            if(container.children.length!=0){
+                comandas_container.append(container.children[0])
+            }
             container.append(div)
             modal.style.display = "none";
             input.value = ''

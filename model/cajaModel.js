@@ -37,8 +37,24 @@ const cerrarCaja = async (res, name, date, monto,)=>{
 const postPayment = async (req, res)=>{
     let mesaName = req.body.mesaName
     let efectivo = req.body.efectivo
+    if(efectivo==''){
+        efectivo=0
+    }else{
+        efectivo = parseFloat(efectivo)
+    } 
     let tarjeta = req.body.tarjeta
+    if(tarjeta==''){
+        tarjeta=0
+    }else{
+        tarjeta = parseFloat(tarjeta)
+    }
     let yape = req.body.yape
+    if(yape==''){
+        yape=0
+    }else{
+        yape = parseFloat(yape)
+    }
+
     try{
         await pool.pool_ordenes.query(`UPDATE ${mesaName} SET procesada='1', cajero='${req.user.nombre}', efectivo='${efectivo}', tarjeta='${tarjeta}', yape='${yape}' WHERE id='1'`);
         res.json(true)

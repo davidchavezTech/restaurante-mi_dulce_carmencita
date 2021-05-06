@@ -111,11 +111,11 @@ socket.on('Nueva orden', function(nuevaOrden) {
             <tr>
                 <td>${nuevaOrden[i].nombre_producto}</td>
                 <td>${nuevaOrden[i].cantidad}</td>
-                <td>${nuevaOrden[i].precio}</td>
+                <td>${tF(nuevaOrden[i].precio)}</td>
                 <td>
                     <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
                 </td>
-                <td>${nuevaOrden[i].total}</td>
+                <td>${tF(nuevaOrden[i].total)}</td>
             </tr>
         `
         html = html + newHTML
@@ -441,7 +441,7 @@ function loadMesasDelDia(){
                     <tr>
                         <td>${nombre}</td>
                         <td>${cantidad}</td>
-                        <td>${precio}</td>
+                        <td>${tF(precio)}</td>
                         <td>
                             <input class="form-check-input" type="checkbox" id="flexCheckDefault" ${cancelada_pagada}>
                         </td>
@@ -572,4 +572,8 @@ document.querySelector('#cancel-cerrar_caja').addEventListener('click',()=>{
 document.querySelector('#cerrar_caja-input').addEventListener('keyup', (e)=>{
     if(e.target.value>0) document.querySelector('#confirm-cerrar_caja').disabled = false
     else document.querySelector('#confirm-cerrar_caja').disabled = true
+})
+console.log(document.querySelector('#logoutCont'))
+$(document).ready(function (){
+    document.querySelector('#logoutCont').style.display = 'none'
 })

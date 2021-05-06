@@ -26,15 +26,20 @@ function createNewUser(){
         createUsermodal.style.display = 'none'
         camposIncorrectosMsg.style.display = 'none'
         console.log(response)
-        createUser_emptyFields()
+        document.getElementById('crear-nombres-input').value = ''
+        document.getElementById('crear-email-input').value = ''
+        document.getElementById('crear-permisos-select').getElementsByTagName('option')[0].selected = 'selected'
+        document.getElementById('crear-contrasena-input').value = ''
+        document.getElementById('crear-contrasena-confirmar-input').value = ''
         loadUsuarios()
         displaySuccessMsg('Usuario creado exitosamente')
     })
 }
 function createUser_emptyFields(){
+    debugger
     document.getElementById('crear-nombres-input').value = ''
     document.getElementById('crear-email-input').value = ''
-    document.getElementById('crear-permisos-select').getElementsByTagName('option')[1].selected = 'selected'
+    document.getElementById('crear-permisos-select').getElementsByTagName('option')[0].selected = 'selected'
     document.getElementById('crear-contrasena-input').value = ''
     document.getElementById('crear-contrasena-confirmar-input').value = ''
 }

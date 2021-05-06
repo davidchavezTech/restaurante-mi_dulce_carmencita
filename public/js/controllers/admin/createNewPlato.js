@@ -4,6 +4,7 @@ function createNewPlato(){
     let precio_de_venta = document.getElementById('crear-precio_de_venta-input').value
     let costo_unitario_promedio = document.getElementById('crear-costo_unitario_promedio-input').value
     let categoria = document.getElementById('crear-categorias-select').value
+    let cocina = document.getElementById('crear-cocina-select').value
     camposIncorrectosMsg.style.display = 'none'
     if(nombre==''||precio_de_venta==''||costo_unitario_promedio==''||categoria=='') return camposIncorrectosMsg.style.display = 'block'
     
@@ -12,6 +13,7 @@ function createNewPlato(){
         precio_de_venta,
         costo_unitario_promedio,
         categoria,
+        cocina,
         url: window.location.href,
         type: 'POST',
         contentType: 'application/json',
@@ -34,5 +36,5 @@ function createPlato_emptyFields(){
     document.getElementById('crear-nombres-de-plato-input').value = ''
     document.getElementById('crear-precio_de_venta-input').value = ''
     document.getElementById('crear-costo_unitario_promedio-input').value = ''
-    document.getElementById('crear-categorias-select').getElementsByTagName('option')[1].selected = 'selected'
+    document.getElementById('crear-categorias-select').getElementsByTagName('option')[0].selected = 'selected'
 }

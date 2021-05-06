@@ -153,9 +153,10 @@ router.post('/inicio', isUserLoggedIn, async (req, res) => {
                                 <td class="text-align-center" style="padding-top:15px;">${producto.precio_venta}</td>
                                 <td class="hidden cat-selector">${producto.categoria}</td>
                                 <td class="hidden">${producto.stock}</td>
+                                <td class="hidden">${producto.cocina}</td>
                             </tr>`
         })
-        const headers = ['id', 'Producto','cantidad','Precio','Categoría', 'stock']
+        const headers = ['id', 'Producto','cantidad','Precio','Categoría', 'stock', 'cocina']
         responseObject = {
             permission: 'mesero',
             headers,
@@ -170,6 +171,10 @@ router.post('/mesero-load_categories', async (req, res) => {
     res.json(result)
 })
 router.post('/inicio-mesero', isUserLoggedIn, async (req, res) => {
+    function tF(number){
+        if(number<0) number = number*-1
+        return parseFloat(number).toFixed(2)
+    }
     let html = ''
     let result = await pool.restaurante.query(`SELECT * FROM productos`);
     result.forEach(producto =>{
@@ -177,12 +182,13 @@ router.post('/inicio-mesero', isUserLoggedIn, async (req, res) => {
                             <td class="hidden">${producto.id}</td>
                             <td style="padding-top:15px;">${producto.nombre_producto}</td>
                             <td class="text-align-center hidden" style="padding-top:15px;">1</td>
-                            <td class="text-align-center" style="padding-top:15px;">${producto.precio_venta}</td>
+                            <td class="text-align-center" style="padding-top:15px;">${tF(producto.precio_venta)}</td>
                             <td class="hidden cat-selector">${producto.categoria}</td>
                             <td class="hidden">${producto.stock}</td>
+                            <td class="hidden">${producto.cocina}</td>
                         </tr>`
     })
-    const headers = ['id', 'Producto','cantidad','Precio','Categoría', 'stock']
+    const headers = ['id', 'Producto','cantidad','Precio','Categoría', 'stock', 'cocina']
     responseObject = {
         nombres: req.user.nombre,
         headers,
@@ -213,19 +219,20 @@ router.post('/post_orden', async (req,res)=>{
         CREATE TABLE IF NOT EXISTS ${currentDate+'_'+id} (
             id INT AUTO_INCREMENT PRIMARY KEY,
             nombre_producto VARCHAR(255) ,
-            precio TINYINT,
+            precio DECIMAL(4,1),
             cantidad TINYINT,
             cancelada_pagada TINYINT DEFAULT 1,
+            cocina VARCHAR(50),
             administrador VARCHAR(255),
             mesero VARCHAR(255),
             cajero VARCHAR(255),
             procesada TINYINT DEFAULT 0,
             preparada TINYINT DEFAULT 0,
-            efectivo TINYINT,
-            tarjeta TINYINT,
-            yape TINYINT,
+            efectivo DECIMAL(4,1),
+            tarjeta DECIMAL(4,1),
+            yape DECIMAL(4,1),
             mesa TINYINT DEFAULT 0,
-            total TEXT,
+            total DECIMAL(5,1) NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )  ENGINE=INNODB;
     `)
@@ -239,11 +246,13 @@ router.post('/post_orden', async (req,res)=>{
                 nombre_producto,
                 precio,
                 cantidad,
+                cocina,
                 total)
             VALUES (
                 '${data[i].nombre_producto}',
                 '${data[i].precio}',
                 '${data[i].cantidad}',
+                '${data[i].cocina}',
                 '${data[i].total}');
         `)
     }
@@ -449,14 +458,15 @@ router.post('/admin-get_platos', adminController.loadPlatos)
 router.post('/admin-get_categories', adminController.loadCategories)
 router.post('/admin-update_permission', adminController.updatePermission)
 router.post('/admin-update_categoria', adminController.updateCategoria)
+router.post('/admin-update_cocina', adminController.updateCocina)
 router.post('/admin-get_platos_categorias', adminController.getCategorias)
 router.post('/edit_plato', adminController.editPlato)
 router.post('/create_new_plato', adminController.crearPlato)
 router.post('/create_new_category', adminController.createCategory)
 router.post('/delete_category', adminController.deleteCategory)
 
-//**************************ADMINISTRACIÓN*****************************//
-//**************************ADMINISTRACIÓN*****************************//
+//**************************EXCEL*****************************//
+//**************************EXCEL*****************************//
 
 router.post('/excel-R_atenciones', adminController.excel_rAtenciones)
 router.post('/excel-R_comandas', adminController.excel_rComandas)

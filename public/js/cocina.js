@@ -23,3 +23,17 @@ this.addEventListener('click', (e)=>{
         setStock(clickedElement)
     }
 })
+
+let cocina = localStorage.getItem('cocina')
+
+if(!cocina){
+    localStorage.setItem('cocina', 'Piqueos')
+    cocina = 'Piqueos'
+}else{
+    document.querySelector('#cocina-select').value = cocina
+}
+document.querySelector('#cocina-select').addEventListener('change', (e)=>{
+    localStorage.setItem('cocina', e.target.value) 
+    cocina=e.target.value
+    window.location.reload()
+})

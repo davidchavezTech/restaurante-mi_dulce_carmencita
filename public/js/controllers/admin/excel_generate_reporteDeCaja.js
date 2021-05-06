@@ -55,6 +55,10 @@ function excel_generate_reporteDeCaja(SheetTitle, dateRange){
 			align: "R",													
 			format: '#,##0.00', 															 
 			font: "#00AA00"}); 																		
+
+		var Style_Money_black = excel.addStyle ( { 									
+			align: "R",													
+			format: '#,##0.00'}); 																		
 		
 		var Style_Total = excel.addStyle ( { 																
 				align: "R",																				
@@ -70,7 +74,7 @@ function excel_generate_reporteDeCaja(SheetTitle, dateRange){
 		
 		for (var i=1;i<data.length+1;i++) excel.set({row:i,style: i%2==0 ? evenRow: oddRow  });				
 
-		var headers=["Fecha", "Hora de apertura", "Hora de cierre", "Cajero", "Aperturó", "Ingresos en efectivo", "Cerró caja con:","Monto Correcto", "Tarjeta","Yape","Ingresos Totales"];							
+		var headers=["Fecha", "Hora de apertura", "Hora de cierre", "Cajero", "Aperturó con:", "Ingresos en efectivo", "Cerró caja con:","Monto Correcto", "Ingresos por Tarjeta","Ingresos por Yape","Ingresos Totales del día"];							
 		var formatHeader=excel.addStyle ( { 															
 				border: "none,none,none,thin #333333", 													
 				font: "Calibri 12 #03bafc B"}); 														
@@ -100,36 +104,56 @@ function excel_generate_reporteDeCaja(SheetTitle, dateRange){
             let montoCorrecto = data[i].abrir + data[i].ingresos
             if(data[i].cerrar!=montoCorrecto)excel.set(0,columnCounter++,rowCounter,data[i].cerrar,Style_Red)
 			else excel.set(0,columnCounter++,rowCounter,data[i].cerrar, Style_Money)
-            
-			excel.set(0,columnCounter++,rowCounter,montoCorrecto)
+			let faltaPlata
+			if(data[i].cerrar<data[i].abrir){
+				faltaPlata = data[i].cerrar-data[i].abrir
+				excel.set(0,columnCounter-1,rowCounter,faltaPlata,Style_Red)
+			}
+			excel.set(0,columnCounter++,rowCounter,montoCorrecto, Style_Money_black)
 
 			excel.set(0,columnCounter++,rowCounter,data[i].Tarjeta, Style_Money)
 			excel.set(0,columnCounter++,rowCounter,data[i].Yape, Style_Money)
 
             let ingresosTotales = data[i].ingresos + data[i].Tarjeta + data[i].Yape
+
 			excel.set(0,columnCounter++,rowCounter,ingresosTotales, Style_Money)
-            
+            if(faltaPlata){
+				let nuevosIngresos= (data[i].ingresos*-1)+faltaPlata + data[i].Tarjeta + data[i].Yape
+				excel.set(0,columnCounter-1,rowCounter,nuevosIngresos, Style_Money)
+			}
 			columnCounter = 0
             rowCounter ++
 		}
+		//add "Cerró caja con"
+		excel.set(0,6,data.length+1,`=SUM(G2:G${data.length+1})`, Style_Total)
+		//add "Monto Correcto"
+		excel.set(0,7,data.length+1,`=SUM(H2:H${data.length+1})`, Style_Total)
+
 		excel.set(0,4,data.length+3,'Ingresos Correctos')
-		excel.set(0,5,data.length+3,`=SUM(G2:G${data.length+1})`, Style_Money)
+		// console.log(`=SUMA(F2:F${data.length+1};J2:J${data.length+1};I2:I${data.length+1})`)
+		// let sumaParaExcel = `=SUMA(F2:F${data.length+1};J2:J${data.length+1};I2:I${data.length+1})`
+		let sumaParaExcel = `=SUM(F2:F${data.length+1},I2:I${data.length+1},J2:J${data.length+1})`
+		excel.set(0,5,data.length+3,sumaParaExcel, Style_Money)
 
 		excel.set(0,4,data.length+4,'Ingresos Reales')
-		excel.set(0,5,data.length+4,`=SUM(F2:F${data.length+1})`, Style_Money)
+		excel.set(0,5,data.length+4,`=(G${data.length+2}-H${data.length+2})+SUM(F2:F${data.length+1},I2:I${data.length+1},J2:J${data.length+1})`, Style_Money)
 		
-        excel.set(0,4,data.length+5,'Pérdidas En Efectivo')
-        let ingresosCorrectos = 0
-        for(let i=0;data.length>i;i++){
-            ingresosCorrectos += data[i].igresos
-        }
-        let ingresosReales = 0
-        for(let i=0;data.length>i;i++){
-            ingresosReales+=(data[i].cerrar - data[i].abrir)
-        }
-        if(ingresosCorrectos!=ingresosReales) excel.set(0,5,data.length+5,`=F${data.length+4}-F${data.length+5}`, Style_Red)
-		else excel.set(0,5,data.length+5,`=F${data.length+4}-F${data.length+5}`)
-        
+        excel.set(0,4,data.length+5,'Discrepancia')
+        // let ingresosCorrectos = 0
+        // for(let i=0;data.length>i;i++){
+        //     ingresosCorrectos += data[i].ingresos
+        // }
+        // let ingresosReales = 0
+        // for(let i=0;data.length>i;i++){
+        //     ingresosReales+=(data[i].cerrar - data[i].abrir)
+        // }
+        // if(ingresosCorrectos!=ingresosReales) excel.set(0,5,data.length+5,`=K${data.length+4}-K${data.length+5}`, Style_Red)
+		// else excel.set(0,5,data.length+5,`=K${data.length+4}-K${data.length+5}`)
+		excel.set(0,5,data.length+5,`=F${data.length+5}-F${data.length+4}`)
+        excel.set(0,5,undefined,22);
+        excel.set(0,8,undefined,22);
+        excel.set(0,9,undefined,22);
+        excel.set(0,10,undefined,25);
 		excel.generate(`${currentDate} - Reporte de Caja.xlsx`);
     })
 

@@ -35,8 +35,8 @@ async function crearPlato(req, res){
         SELECT * FROM productos WHERE nombre_producto='${req.body.nombre}' LIMIT 1`)
         if(result.length!=0) return res.json('Usuario ya existe')
         await pool.restaurante.query(`
-        INSERT INTO productos (nombre_producto, precio_venta, costo, categoria)
-        VALUES ('${req.body.nombre}', '${req.body.precio_de_venta}', '${req.body.costo_unitario_promedio}', '${req.body.categoria}');    
+        INSERT INTO productos (nombre_producto, precio_venta, costo, categoria, cocina)
+        VALUES ('${req.body.nombre}', '${req.body.precio_de_venta}', '${req.body.costo_unitario_promedio}', '${req.body.categoria}', '${req.body.cocina}');    
         `)
         res.json(true)
     }catch(err){
@@ -52,7 +52,7 @@ async function createCategory(req, res){
     try{
         let result = await pool.restaurante.query(`
         SELECT * FROM categorias WHERE nombre_de_categoria='${req.body.nombre}' LIMIT 1`)
-        if(result.length!=0) return res.json('Usuario ya existe')
+        if(result.length!=0) return res.json('Categoría ya existe')
         await pool.restaurante.query(`
         INSERT INTO categorias (nombre_de_categoria)
         VALUES ('${req.body.nombre}');    
@@ -147,7 +147,7 @@ async function loadPlatos(req, res){
 
     try{
         let result = await pool.restaurante.query(`
-            SELECT id, nombre_producto, precio_venta, costo, categoria FROM productos
+            SELECT id, nombre_producto, precio_venta, costo, categoria, cocina FROM productos
         `)
         res.json(result)
     }catch(err){
@@ -210,6 +210,18 @@ async function updateCategoria(req, res){
     }
     
 }
+async function updateCocina(req, res){
+    try{
+        await pool.restaurante.query(`
+            UPDATE productos SET cocina='${req.body.cocina}' WHERE id='${req.body.platoID}'
+        `)
+        res.json(true)
+    }catch(err){
+        console.log(err)
+        res.json(err)
+    }
+    
+}
 
 
 async function getCategorias(req, res){
@@ -246,8 +258,12 @@ async function excel_rAtenciones(req, res){
         let response = []
         for(let i=0;correctTableNamesToReturn.length>i;i++){
             let result = await pool.pool_ordenes.query(`
-                SELECT * FROM ${correctTableNamesToReturn[i]} WHERE id='1' LIMIT 1
+                SELECT * FROM ${correctTableNamesToReturn[i]}
             `)
+            for(let j=0;result.length>j;j++){
+                result[j].created_at = result[j].created_at.toString()
+                console.log(result[j].created_at)
+            }
             response.push(result)
         }
         response.length > 0 ? res.json(response) : res.json(false)
@@ -275,12 +291,17 @@ async function excel_rComandas(req, res){
             if(de<=currentTableName&&hasta>=currentTableName){
                 correctTableNamesToReturn.push(ordenesTables[i].TABLE_NAME)
             }
+            // 16.24
         }
         let response = []
         for(let i=0;correctTableNamesToReturn.length>i;i++){
             let result = await pool.pool_ordenes.query(`
                 SELECT * FROM ${correctTableNamesToReturn[i]}
             `)
+            for(let j=0;result.length>j;j++){
+                result[j].created_at = result[j].created_at.toString()
+                console.log(result[j].created_at)
+            }
             response.push(result)
         }
         response.length > 0 ? res.json(response) : res.json(false)
@@ -418,7 +439,7 @@ async function excel_rCaja(req, res){
 
 async function excel_rProductos(req, res){
     try{
-        let listaDeProdutos = await pool.restaurante.query(`SELECT nombre_producto, precio_venta, costo, categoria FROM productos`)
+        let listaDeProdutos = await pool.restaurante.query(`SELECT nombre_producto, precio_venta, costo, categoria, cocina FROM productos`)
         let nombres_de_todas_las_mesas = await pool.pool_ordenes.query(`SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = 'ordenes'
         `)
@@ -481,6 +502,7 @@ module.exports = {
     excel_rAtenciones,
     excel_rComandas,
     excel_rCaja,
-    excel_rProductos
+    excel_rProductos,
+    updateCocina
     // loadPermissions
 }

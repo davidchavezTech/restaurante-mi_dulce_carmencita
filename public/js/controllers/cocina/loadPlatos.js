@@ -26,7 +26,7 @@ function loadPlatos(){
         for(let i=0;data.headers.length>i;i++){
             let th = document.createElement('th')
             th.textContent = data.headers[i]
-            if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'||data.headers[i]=='Precio'){th.classList.add('hidden')}
+            if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'||data.headers[i]=='Precio'||data.headers[i]=='cocina'){th.classList.add('hidden')}
             // if(data.headers[i]=='Precio'){th.classList.add('text-align-center')}
             tHeadRow.append(th)
         }

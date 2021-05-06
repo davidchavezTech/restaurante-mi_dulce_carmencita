@@ -73,8 +73,10 @@ body{
     border:solid 2px #0f5c14;
     margin-left:auto;
     margin-right:auto;
+    height: 50px;
+    align-items: center;
 }.expand_arrow{
-    width:22px
+    width:46px;
 }.comanda-title{
     display: flex;
     justify-content: space-between;
@@ -243,7 +245,7 @@ input[type=number] {
     opacity: 0;
 }.activate-success-msg{
     animation-name: success;
-    animation-duration: 2s;
+    animation-duration: 4s;
     animation-delay: 0s;
 }
 @keyframes success {
@@ -255,6 +257,7 @@ input[type=number] {
     display: flex;
     justify-content: center;
 }#logoutCont{
+    pointer-events: none;
     position: absolute;
     bottom: 10px;
     width: 100vw;
@@ -266,4 +269,8 @@ input[type=number] {
     z-index: 2;
     cursor: pointer;
     display: none;
+}.mesa{
+    padding:20px;
+}.pointerEventsAll{
+    pointer-events: all;
 }

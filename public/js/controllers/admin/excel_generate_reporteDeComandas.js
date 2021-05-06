@@ -86,10 +86,11 @@ function excel_generate_reporteDeComandas(SheetTitle, dateRange){
 				if(data[i][0][key]==null) data[i][0][key]='NO'
 			}
             excel.set({row:rowCounter,style: Style_ColorRow  });	
-			let fecha = data[i][0].created_at.slice(0, 10)
-			var arr = fecha.split("-"); 
-            fecha = arr[2]+'-'+arr[1]+'-'+arr[0]
-			let hora = data[i][0].created_at.slice(11, 16)
+			let fecha = data[i][0].nombre_producto.slice(0, 10)
+			// let fecha = data[i][0].created_at.slice(0, 10)
+			var arr = fecha.split("_"); 
+            fecha = arr[0]+'-'+arr[1]+'-'+arr[2]
+			let hora = data[i][0].created_at.slice(16, 21)
 			excel.set(0,columnCounter++,rowCounter,fecha)
 			excel.set(0,columnCounter++,rowCounter,hora)
 			// if(data[i][0].procesada==0) data[i][0].procesada = 'No fue procesada'
@@ -103,6 +104,7 @@ function excel_generate_reporteDeComandas(SheetTitle, dateRange){
                 columnCounter=5
                 excel.set(0,columnCounter++,rowCounter,data[i][j].nombre_producto)
                 excel.set(0,columnCounter++,rowCounter,data[i][j].cantidad)
+				debugger
                 excel.set(0,columnCounter++,rowCounter,data[i][j].precio)
                 if(data[i][j].cancelada_pagada==0) {
                     if(rowCounter,data[i][0].cajero=='NO') excel.set(0,columnCounter++,rowCounter,"Sin Procesar", Style_Red)
@@ -126,7 +128,7 @@ function excel_generate_reporteDeComandas(SheetTitle, dateRange){
 		// excel.set(0,10,data.length+1,`=SUM(K2:K${data.length+1},)`, Style_Total)
 		// excel.set(0,11,data.length+1,`=SUM(L2:L${data.length+1},)`, Style_Total)
 		
-		excel.generate(`${SheetTitle}.xlsx`);
+		excel.generate(`${currentDate} - Reporte de Comandas.xlsx`);
     })
 
 	

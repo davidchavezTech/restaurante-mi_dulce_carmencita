@@ -41,9 +41,10 @@ const createMesa = async (req, res)=>{
         id INT PRIMARY KEY,
         nombre_producto VARCHAR(255) ,
         cantidad TINYINT,
-        precio TINYINT,
+        precio DECIMAL(4,1),
         categoria TINYINT,
         stock TINYINT,
+        cocina VARCHAR(50),
         delivery_state TINYINT(1) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )  ENGINE=INNODB;
@@ -55,8 +56,8 @@ const createMesa = async (req, res)=>{
 const insertIntoMesa = async (req, res)=>{
     // await pool.pool_meseros.query(`DROP TABLE IF EXISTS ${mesaNewName}
     await pool.pool_meseros.query(`
-        INSERT INTO ${req.body.orden.mesaName} (id, nombre_producto, cantidad, precio, categoria, stock)
-        VALUES ('${req.body.orden.id}', '${req.body.orden.nombre_producto}', '${req.body.orden.cantidad}', '${req.body.orden.precio}', '${req.body.orden.categoria}', '${req.body.orden.stock}');
+        INSERT INTO ${req.body.orden.mesaName} (id, nombre_producto, cantidad, precio, categoria, stock, cocina)
+        VALUES ('${req.body.orden.id}', '${req.body.orden.nombre_producto}', '${req.body.orden.cantidad}', '${req.body.orden.precio}', '${req.body.orden.categoria}', '${req.body.orden.stock}', '${req.body.orden.cocina}');
     `)
     res.json('Se grabó el nuevo plato en la DDBB corréctamente')
 }

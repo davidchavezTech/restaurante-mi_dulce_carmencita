@@ -20,6 +20,8 @@ this.addEventListener('click',(e)=>{
         updatePermisoSelect(clickedElement)
     }else if(clickedElement.id=='platosCategorySelect'){
         updateCategoriaSelect(clickedElement)
+    }else if(clickedElement.id=='platosCocinaSelect'){
+        updatePlatoSelect(clickedElement)
     }else if(clickedElement.id=='edit-plato'){
         showModalEditPlato(clickedElement)
     }else if(clickedElement.id=='create-plato'){

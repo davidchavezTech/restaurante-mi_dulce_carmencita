@@ -6,6 +6,9 @@ let variable_textoDeBoton
 
 excel_cancelBtn.addEventListener('click', ()=>{
     excelModal.style.display = 'none'
+    document.querySelector('#error-excel').style.display = 'none'
+    document.querySelector('#de').value = ''
+    document.querySelector('#hasta').value = ''
 })
 function showModalGenerarExcel(clickedElement){
     variable_textoDeBoton = clickedElement.textContent

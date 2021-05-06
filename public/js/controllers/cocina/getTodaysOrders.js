@@ -23,25 +23,28 @@ function getTodaysOrders(state){
             div.classList = 'card ordenes-card ordenes-card-cocina'
             div.setAttribute('table-name', data[i][0].nombre_producto)
             for(let j=1;data[i].length>j;j++){
-                let tr = document.createElement('tr')
-                let preparada = data[i][j].preparada
-                if(preparada==0){
-                    preparada=''
-                }else{
-                    preparada='checked'
+                if(data[i][j].cocina==cocina){
+                    let tr = document.createElement('tr')
+                    let preparada = data[i][j].preparada
+                    if(preparada==0){
+                        preparada=''
+                    }else{
+                        preparada='checked'
+                    }
+                    tr = `
+                        <tr>
+                            <td>${data[i][j].nombre_producto}</td>
+                            <td>${data[i][j].cantidad}</td>
+                            <td style='${hide}'>
+                                <input id="terminado_checkbox" class="form-check-input" type="checkbox" value="" ${preparada} ${disabled}>
+                            </td>
+                        </tr>
+                    `
+                    trs += tr
                 }
-                tr = `
-                    <tr>
-                        <td>${data[i][j].nombre_producto}</td>
-                        <td>${data[i][j].cantidad}</td>
-                        <td style='${hide}'>
-                            <input id="terminado_checkbox" class="form-check-input" type="checkbox" value="" ${preparada} ${disabled}>
-                        </td>
-                    </tr>
-                `
-                trs += tr
             }
-            div.innerHTML = `
+            if(trs!=''){
+                div.innerHTML = `
                 <div class="card-body no-events">
                     <h2 id="1" class="mesa_identifier">Mesa ${data[i][0].mesa}</h2>
                     <p><strong>Atendido por: </strong>${data[i][0].mesero}</p>
@@ -68,6 +71,8 @@ function getTodaysOrders(state){
                     </div>
             `
             active_ordersContainer.append(div)
+            }
+            
         }
     })
 }

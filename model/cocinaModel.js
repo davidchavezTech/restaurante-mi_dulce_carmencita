@@ -16,7 +16,7 @@ const getOrders = async (req, res)=>{
         `)
         if(result.length==0) return false
         for(let i=0;result.length>i;i++){
-            let orden = await pool.pool_ordenes.query(`SELECT id, nombre_producto, cantidad, mesero, mesa, preparada  FROM ${result[i].TABLE_NAME}`);
+            let orden = await pool.pool_ordenes.query(`SELECT id, nombre_producto, cantidad, mesero, mesa, preparada, cocina FROM ${result[i].TABLE_NAME}`);
             //only push this to the array that will be sent back if the state set by the request matches the one in the data base =>preparada 0 or preparada 1
             if(orden[0].preparada==req.body.state)ordenes.push(orden)
         }

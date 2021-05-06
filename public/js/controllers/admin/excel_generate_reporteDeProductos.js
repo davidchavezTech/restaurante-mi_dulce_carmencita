@@ -60,7 +60,7 @@ function excel_generate_reporteDeProductos(SheetTitle, dateRange){
 		
 		for (var i=1;i<data.length+1;i++) excel.set({row:i,style: i%2==0 ? evenRow: oddRow  });				
 
-		var headers=["Nombre", "Cantidad", "Precio de Venta", "Costo", "Categoría"];							
+		var headers=["Nombre", "Cantidad", "Precio de Venta", "Costo", "Categoría", "Cocina Responsable"];							
 		var formatHeader=excel.addStyle ( { 															
 				border: "none,none,none,thin #333333", 													
 				font: "Calibri 12 #03bafc B"}); 														
@@ -77,7 +77,10 @@ function excel_generate_reporteDeProductos(SheetTitle, dateRange){
 		// 	dateArray.pop()
 		// }
 		let newDate = `${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`
-		
+		dateStart = dateStart.split('-')
+		dateEnd = dateEnd.split('-')
+		dateStart = `${dateStart[2]}-${dateStart[1]}-${dateStart[0]}`
+		dateEnd = `${dateEnd[2]}-${dateEnd[1]}-${dateEnd[0]}`
         if(dateStart==dateEnd) excel.set(0, 0, 0, `Productos vendidos el ${newDate}`, mergedCellStyle, 6);	
 		else excel.set(0, 0, 0, `Productos vendidos entre ${dateStart} y ${dateEnd}`, mergedCellStyle, 6);	
         // excel.set(0, 0, 0, `Productos vendidos entre ${dateStart} y ${dateEnd}`, mergedCellStyle, 6);	
@@ -92,13 +95,15 @@ function excel_generate_reporteDeProductos(SheetTitle, dateRange){
 			excel.set(0,columnCounter++,rowCounter,data[i].precio_venta, Style_Money)
 			excel.set(0,columnCounter++,rowCounter,data[i].costo, Style_Money)
 			excel.set(0,columnCounter++,rowCounter,data[i].categoria)
+			excel.set(0,columnCounter++,rowCounter,data[i].cocina)
             columnCounter=0
             rowCounter++
         }
 		
         excel.set(0,0,undefined,24);
         excel.set(0,4,undefined,22);
-		excel.generate(`${sheetName}.xlsx`);
+        excel.set(0,5,undefined,24);
+		excel.generate(`${currentDate} - Reporte de Productos.xlsx`);
     })
 
 	
