@@ -24,6 +24,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
         div.id = mesaNumber
         div.classList.add('mesa_container')
         div.setAttribute('mesero-mesa_name', data[i][1])
+        if(data[i][2]) div.setAttribute('order', data[i][2].order_name)
         // switch (mesaNumber) {
         //     case 1:
         //         mesaNumber = '01';
@@ -65,9 +66,9 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
                 <td style="padding-top:15px;">${data[i][j].nombre_producto}</td>
                 <td class="text-align-center" style="padding-top:15px;">${data[i][j].cantidad}</td>
                 <td class="text-align-center" style="padding-top:15px;">${tF(data[i][j].precio)}</td>
+                <td class="hidden">${data[i][j].categoria}</td>
                 <td class="hidden cat-selector">${data[i][j].stock}</td>
                 <td class="hidden cat-selector">${data[i][j].cocina}</td>
-                <td class="hidden">1</td>
             </tr>`
         }
         let grayedOut = ''
@@ -75,7 +76,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
         if(data[i][2]){
             if(data[i][2].delivery_state==1){
                 grayedOut = 'gray-out'
-                display=' hidden'
+                // display=' hidden'
             }else{
                  grayedOut = ''
             }
@@ -107,7 +108,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
                     <h1 style="display:inline-block">Total:&nbsp;&nbsp; </h1><span id="precio_total">${tF(total)}</span>
                 </div>
                 <div>
-                    <img src="img/check.svg" class="check${display}" alt="">
+                    <img src="img/check.svg" class="check" alt="">
                     <img src="img/delete.svg" class="trashcan" alt="">
                 </div>
             </div>
@@ -133,6 +134,7 @@ $("#main_table").on("click", "tr", function(e) {
         if(containerTableRows.children.length!=0){//not empty, has rows in it, cont
             let gotAmatch = false
             for(let i=0;containerTableRows.children.length>i;i++){//check if already added, if so, add one more to quantity
+                //************************************** */
                 let idForRowBeenSearched = containerTableRows.children[i].children[0].textContent
                 if(clickedRowID==idForRowBeenSearched){//got a match!
                     let currentQuantity = containerTableRows.children[i].children[2].textContent
@@ -150,13 +152,26 @@ $("#main_table").on("click", "tr", function(e) {
                 i=containerTableRows.children.length
                 //next code expands div when you add a new order --This fix is needed for mobile as on pc, it does it automatically
                 let divToBeExpanded = container.children[0].children[1]
-                divToBeExpanded.style.maxHeight = divToBeExpanded.offsetHeight
-
+                divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
+                if(container.children[0].children[0].classList.contains('gray-out')){
+                    let tr_and_mesa_id = {}
+                    tr_and_mesa_id.mesaID = container.children[0].id
+                    let copy2 = orig.cloneNode(true);
+                    copy2.children[0].remove()
+                    copy2.children[2].remove()
+                    copy2.children[2].remove()
+                    copy2.children[2].remove()
+                    tr_and_mesa_id.tr = copy2.innerHTML
+                    socket.emit('add dish to order', tr_and_mesa_id)
+                }
+                    
             }
         }else{//no platos selected, just append the copied <tr> and don't search if already in there
             //append TR copy
             agregarPlatoaDDBB(orig)
             container.children[0].children[1].children[0].children[1].append(copy)
+            let divToBeExpanded = container.children[0].children[1]
+            divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
         }
         //Get the total from all platos selected
         let completeTotal = 0
@@ -216,6 +231,7 @@ function agregarPlatoaDDBB(orig){
             cantidad,
             precio,
             categoria,
+            cocina,
             stock
         }
     }
@@ -264,7 +280,7 @@ function agregarCantidaDePlatoaDDBB(id, newQuantity){
 }
 //remove <tr> from selected table
 $("#comanda-selected").on("click", "tr", function(e) {
-    if(e.currentTarget.id=='orden'){
+    if(e.currentTarget.id=='orden'&&!(e.currentTarget.closest('.mesa_container').children[0].classList.contains('gray-out'))){
         let containerTableRows = e.currentTarget.parentElement
         e.currentTarget.parentNode.removeChild(e.currentTarget)
         let completeTotal = 0
@@ -294,8 +310,7 @@ this.addEventListener('click', (e)=>{
     //expand comandas
     if(clickedElement.classList=='expand_arrow'){
         //remove orange class for plato ready
-        clickedElement.parentElement.classList.remove('orange')
-        if(clickedElement.parentElement.parentElement.querySelector('.check').classList.contains('hidden')){
+        if(clickedElement.parentElement.classList.contains('orange')){
             clickedElement.parentElement.classList.remove('orange')
             clickedElement.parentElement.classList.add('gray-out')
         }
@@ -320,7 +335,7 @@ this.addEventListener('click', (e)=>{
     //check if mesa clicked is not the current selected mesa, if it isn't, put it at the top
     else if(clickedElement.classList=='mesa'&&clickedElement.parentElement.parentElement.parentElement.id=='comanda_container'){
         //check if it's grayed out, if so, don't push it to the top
-        if(clickedElement.parentElement.classList.contains('gray-out')) return
+        // if(clickedElement.parentElement.classList.contains('gray-out')) return
         //check if there are no mesas currently selected
         if(container.children.length==0){
             let mesaContainer = clickedElement.parentElement.parentElement
@@ -359,6 +374,10 @@ this.addEventListener('click', (e)=>{
 })
 
 function emitAndSaveToDDBBSelectedTable(clickedElement){
+    //are we updating or creating a new table?
+    if(clickedElement.closest('.mesa_container').children[0].classList.contains('gray-out')){//we are updating
+
+    }
     let tableBody = clickedElement.parentElement.parentElement.parentElement.querySelector('#main_tbody')
         if(tableBody.children.length == 0){
             showError('Su mesa no tiene órdenes')
@@ -398,21 +417,45 @@ function emitAndSaveToDDBBSelectedTable(clickedElement){
         data = {data}
         
         // socket.emit('Nueva orden', data)
-        $.post('/post_orden', data).done(( data ) => {
-            console.log(data)
-            if(data) {
-                socket.emit('Nueva orden', data)
-                clickedElement.closest('.mesa_container').children[0].classList.add('gray-out')
-                let mesa_container = clickedElement.closest('.mesa_container')
-                mesa_container.querySelector('.comanda-info').style.maxHeight = ''
-                mesa_container.children[0].children[1].src = 'img/expand_arrow.svg'
-                clickedElement.classList.add('hidden')
-                
-                comandas_container.append(mesa_container)
-            }else{
-                showError("No se pudo conectar a la base de datos :'(")
-             }
-        })
+        //are we updating or creating a new table?
+        if(clickedElement.closest('.mesa_container').children[0].classList.contains('gray-out')){//we are updating
+
+            // //insert mesa name
+            data.data[0].order_name = clickedElement.closest('.mesa_container').getAttribute('order')
+            $.post('/post_update_orden', data).done(( data ) => {
+                console.log(data)
+                if(data) {
+                    socket.emit('Actualizar Orden', data)
+                    clickedElement.closest('.mesa_container').children[0].classList.add('gray-out')
+                    let mesa_container = clickedElement.closest('.mesa_container')
+                    mesa_container.querySelector('.comanda-info').style.maxHeight = ''
+                    mesa_container.children[0].children[1].src = 'img/expand_arrow.svg'
+                    
+                    comandas_container.append(mesa_container)
+                }else{
+                    showError("No se pudo conectar a la base de datos :'(")
+                }
+            })
+        }else{
+
+            $.post('/post_orden', data).done(( data ) => {
+                console.log(data)
+                if(data) {
+                    //set order_name attribute to database "ordenes" table name
+                    clickedElement.closest('.mesa_container').setAttribute('order', data[0].nombre_producto)
+
+                    socket.emit('Nueva orden', data)
+                    clickedElement.closest('.mesa_container').children[0].classList.add('gray-out')
+                    let mesa_container = clickedElement.closest('.mesa_container')
+                    mesa_container.querySelector('.comanda-info').style.maxHeight = ''
+                    mesa_container.children[0].children[1].src = 'img/expand_arrow.svg'
+                    
+                    comandas_container.append(mesa_container)
+                }else{
+                    showError("No se pudo conectar a la base de datos :'(")
+                }
+            })
+        }
         
 }
 const data = {

@@ -465,15 +465,18 @@ async function excel_rProductos(req, res){
 
         for(let i=0;nombres_de_mesas_para_seleccionar.length>i;i++){
             let result = await pool.pool_ordenes.query(`
-                SELECT nombre_producto, cantidad FROM ${nombres_de_mesas_para_seleccionar[i]}
+                SELECT nombre_producto, cantidad, cancelada_pagada FROM ${nombres_de_mesas_para_seleccionar[i]}
             `)
             for(let j=1;result.length>j;j++){
                 console.log(j)
                 let nombreDelProducto = result[j].nombre_producto
+                let cancelada_pagada = result[j].cancelada_pagada
                 let qty = result[j].cantidad
-                for(let k=0;listaDeProdutos.length>k;k++){
-                    if(listaDeProdutos[k].nombre_producto==nombreDelProducto) {
-                        listaDeProdutos[k].quantity += qty
+                if(cancelada_pagada==1){
+                    for(let k=0;listaDeProdutos.length>k;k++){
+                        if(listaDeProdutos[k].nombre_producto==nombreDelProducto) {
+                            listaDeProdutos[k].quantity += qty
+                        }
                     }
                 }
             }

@@ -21,6 +21,7 @@ function getTodaysOrders(state){
             let trs = ''
             // div.id = data[i][0].id
             div.classList = 'card ordenes-card ordenes-card-cocina'
+            div.id = data[i][0].mesa
             div.setAttribute('table-name', data[i][0].nombre_producto)
             for(let j=1;data[i].length>j;j++){
                 if(data[i][j].cocina==cocina){
@@ -46,7 +47,7 @@ function getTodaysOrders(state){
             if(trs!=''){
                 div.innerHTML = `
                 <div class="card-body no-events">
-                    <h2 id="1" class="mesa_identifier">Mesa ${data[i][0].mesa}</h2>
+                    <h2 class="mesa_identifier">Mesa ${data[i][0].mesa}</h2>
                     <p><strong>Atendido por: </strong>${data[i][0].mesero}</p>
                     <table class="table table-hover">
                         <thead>

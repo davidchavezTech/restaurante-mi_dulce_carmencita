@@ -233,6 +233,7 @@ router.post('/post_orden', async (req,res)=>{
             yape DECIMAL(4,1),
             mesa TINYINT DEFAULT 0,
             total DECIMAL(5,1) NULL,
+            updated TINYINT DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )  ENGINE=INNODB;
     `)
@@ -264,7 +265,7 @@ router.post('/post_orden', async (req,res)=>{
     let meseroNameNoSpaces = meseroName.replace(/ /g,"")
     let mesero_MesaName = `${currentDate}_${meseroNameNoSpaces}_${mesaNumber}`
 
-    await pool.pool_meseros.query(`UPDATE ${mesero_MesaName} SET delivery_state='1'`)
+    await pool.pool_meseros.query(`UPDATE ${mesero_MesaName} SET delivery_state='1', order_name='${currentDate+'_'+id}'`)
     //created html - send it to socket:
     data[0].nombre_producto = currentDate+'_'+id
     res.json(data)
@@ -432,6 +433,7 @@ router.post('/mesero-agregar_cantidad_de_plato_a_la_orden', isUserLoggedIn, mese
 router.post('/mesero-drop_dish_from_order', isUserLoggedIn, meseroController.dropDish)
 router.post('/mesero-load_tables', isUserLoggedIn, meseroController.loadTables)
 router.post('/mesero-drop_table', isUserLoggedIn, meseroController.dropTable)
+router.post('/post_update_orden', meseroController.updateTable)
 module.exports = router;
 
 //**************************COCINA*****************************//

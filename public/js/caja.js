@@ -561,7 +561,7 @@ confirmCerrarCaja.addEventListener('click', ()=>{
     }
     $.post('/caja-cerrar_caja', data).done(( data ) => {
         localStorage.removeItem('JWT')
-        window.location.href='http://localhost:4000/'
+        window.location.href = 'http://' + window.location.hostname + ':4000/';
     })
     
 })

@@ -5,6 +5,8 @@ socket.on('Nueva orden', function(data) {
     let trs = ''
     // div.id = data[i][0].id
     div.classList = 'card ordenes-card ordenes-card-cocina'
+    debugger
+    div.id = data[0].mesa
     div.setAttribute('table-name', data[0].nombre_producto)
     for(let j=1;data.length>j;j++){
         if(data[j].cocina==cocina){
@@ -50,6 +52,24 @@ socket.on('Nueva orden', function(data) {
         active_ordersContainer.append(div)
     }
 })
+
+socket.on('add dish to order', (data) =>{
+    console.log(data)
+    debugger
+    let tr = document.createElement('tr')
+    tr.innerHTML = data.tr
+    if(tr.lastElementChild.textContent!=cocina) return
+    tr.lastElementChild.classList = ''
+    tr.lastElementChild.innerHTML = `
+        <input id="terminado_checkbox" class="form-check-input" type="checkbox" value="">
+    `
+    let card = document.getElementById(data.mesaID)
+    card.querySelector('#cuerpo_de_table').append(tr)
+})
+
 function emmitOrdenCompleta(data){ socket.emit('Nueva orden lista - cocina', data)}
 function emmitPlatoCompleto(tableID_and_dish_name){ socket.emit('Nuevo plato listo - cocina', tableID_and_dish_name)}
 function emmitStockState(platoID_and_stock_state){ socket.emit('cambio de stock - cocina', platoID_and_stock_state)}
+socket.on('Plato updated', (data) =>{
+    console.log(data)
+})

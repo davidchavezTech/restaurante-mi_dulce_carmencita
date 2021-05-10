@@ -46,6 +46,7 @@ const createMesa = async (req, res)=>{
         stock TINYINT,
         cocina VARCHAR(50),
         delivery_state TINYINT(1) DEFAULT 0,
+        order_name VARCHAR(20) NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )  ENGINE=INNODB;
     `)
@@ -70,6 +71,45 @@ const increaseQuantityOfDish = async (req, res)=>{
     `)
     res.json('Se incrementó la cantidad en la DDBB corréctamente')
 }
+const { emmit } = require('../utils/socket-io');
+const updateTable = async (req, res)=>{
+    let current_orders = await pool.pool_ordenes.query(`
+        SELECT id, nombre_producto FROM ${req.body.data[0].order_name}
+    `)
+    for(let i=1;req.body.data.length>i;i++){
+        let found = 0
+        for(let j=1;current_orders.length>j;j++){
+            if(req.body.data[i].nombre_producto==current_orders[j].nombre_producto){
+                let total = parseFloat(req.body.data[i].precio) * parseFloat(req.body.data[i].cantidad)
+                await pool.pool_ordenes.query(`
+                UPDATE ${req.body.data[0].order_name} SET cantidad='${req.body.data[i].cantidad}', updated='1', total='${total}' WHERE id='${current_orders[j].id}'
+                `)
+                let response = {
+                    mesaID: req.body.data[0].mesa,
+                    producto: req.body.data[i].nombre_producto,
+                    cantidad: req.body.data[i].cantidad,
+                    cocina: req.body.data[i].cocina
+                }
+                emmit('Plato updated', response);
+                found=1
+                j=req.body.data[j].length
+            }
+        }
+        if(found==0){
+            let total = parseFloat(req.body.data[i].precio) * parseFloat(req.body.data[i].cantidad)
+            await pool.pool_ordenes.query(`
+                    INSERT INTO ${req.body.data[0].order_name} (nombre_producto, precio, cantidad, cocina, total)
+                    VALUES ('${req.body.data[i].nombre_producto}', '${req.body.data[i].precio}', '${req.body.data[i].cantidad}', '${req.body.data[i].cocina}', '${total}');
+                `)
+        }
+        //Update total of all orders
+        await pool.pool_ordenes.query(`
+                UPDATE ${req.body.data[0].order_name} SET total='${req.body.data[0].total}' WHERE id='1'
+                `)
+        
+    }
+    res.json('Se actualizó la orden corréctamente')
+}
 
 
 const dropDish = async (req, res)=>{
@@ -84,9 +124,18 @@ const dropDish = async (req, res)=>{
 const loadTables = async (req, res)=>{
     let ordersArray = []
     let meseroName = req.user.nombre
+    
+    let d = new Date();
+    let day = d.getDate()
+    if(day<10) day = "0" + day
+    let month = d.getMonth() + 1
+    if(month<10) month = "0" + month
+    let year = d.getFullYear()
+    let currentDate  =  `${day}_${month}_${year}`
+
     noSpacesMeseroName = meseroName.replace(/ /g,"")
     let mesas = await pool.pool_meseros.query(`SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
-        WHERE TABLE_NAME LIKE '%${noSpacesMeseroName}%'`)
+        WHERE TABLE_NAME LIKE '${currentDate}_${noSpacesMeseroName}%'`)
     for(let i=0;mesas.length>i;i++){
         //get ID from table name
         let mesaID = /[^_]*$/.exec(mesas[i].TABLE_NAME)[0];
@@ -94,6 +143,7 @@ const loadTables = async (req, res)=>{
             SELECT * FROM ${mesas[i].TABLE_NAME}
         `)
         //set it to first value of mesa object
+        // mesa.unshift(mesa[0].nombre_producto)
         mesa.unshift(mesas[i].TABLE_NAME)
         mesa.unshift(mesaID)
         ordersArray.push(mesa)
@@ -123,5 +173,6 @@ module.exports = {
     increaseQuantityOfDish,
     dropDish,
     loadTables,
-    dropTable
+    dropTable,
+    updateTable
 }
