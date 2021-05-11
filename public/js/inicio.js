@@ -141,6 +141,11 @@ $("#main_table").on("click", "tr", function(e) {
                     currenQuantity = parseFloat(currentQuantity, 2)
                     let newQuantity = currenQuantity + 1
                     containerTableRows.children[i].children[2].textContent = newQuantity
+                    containerTableRows.children[i].style.backgroundColor = ''
+                    if(containerTableRows.closest('.mesa_container').children[0].classList.contains('orange')){
+                        containerTableRows.closest('.mesa_container').children[0].classList.remove('orange')
+                        containerTableRows.closest('.mesa_container').children[0].classList.add('gray-out')
+                    }
                     gotAmatch = true
                     i=containerTableRows.children.length
                     agregarCantidaDePlatoaDDBB(orig.children[0].textContent, newQuantity)
@@ -153,17 +158,17 @@ $("#main_table").on("click", "tr", function(e) {
                 //next code expands div when you add a new order --This fix is needed for mobile as on pc, it does it automatically
                 let divToBeExpanded = container.children[0].children[1]
                 divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
-                if(container.children[0].children[0].classList.contains('gray-out')){
-                    let tr_and_mesa_id = {}
-                    tr_and_mesa_id.mesaID = container.children[0].id
-                    let copy2 = orig.cloneNode(true);
-                    copy2.children[0].remove()
-                    copy2.children[2].remove()
-                    copy2.children[2].remove()
-                    copy2.children[2].remove()
-                    tr_and_mesa_id.tr = copy2.innerHTML
-                    socket.emit('add dish to order', tr_and_mesa_id)
-                }
+                // if(container.children[0].children[0].classList.contains('gray-out')){
+                //     let tr_and_mesa_id = {}
+                //     tr_and_mesa_id.mesaID = container.children[0].id
+                //     let copy2 = orig.cloneNode(true);
+                //     copy2.children[0].remove()
+                //     copy2.children[2].remove()
+                //     copy2.children[2].remove()
+                //     copy2.children[2].remove()
+                //     tr_and_mesa_id.tr = copy2.innerHTML
+                //     socket.emit('add dish to order', tr_and_mesa_id)
+                // }
                     
             }
         }else{//no platos selected, just append the copied <tr> and don't search if already in there
@@ -374,10 +379,7 @@ this.addEventListener('click', (e)=>{
 })
 
 function emitAndSaveToDDBBSelectedTable(clickedElement){
-    //are we updating or creating a new table?
-    if(clickedElement.closest('.mesa_container').children[0].classList.contains('gray-out')){//we are updating
-
-    }
+    
     let tableBody = clickedElement.parentElement.parentElement.parentElement.querySelector('#main_tbody')
         if(tableBody.children.length == 0){
             showError('Su mesa no tiene órdenes')
@@ -418,7 +420,7 @@ function emitAndSaveToDDBBSelectedTable(clickedElement){
         
         // socket.emit('Nueva orden', data)
         //are we updating or creating a new table?
-        if(clickedElement.closest('.mesa_container').children[0].classList.contains('gray-out')){//we are updating
+        if(clickedElement.closest('.mesa_container').children[0].classList.contains('gray-out')||clickedElement.closest('.mesa_container').children[0].classList.contains('orange')){//we are updating
 
             // //insert mesa name
             data.data[0].order_name = clickedElement.closest('.mesa_container').getAttribute('order')

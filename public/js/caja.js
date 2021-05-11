@@ -151,7 +151,9 @@ socket.on('Nueva orden', function(nuevaOrden) {
     `
     ordenes_container.append(div)
 });
-
+socket.on('Plato updated', (data) =>{
+    console.log(data)
+})
 window.addEventListener('click', (e)=>{
     let clickedElement = e.target
     if(clickedElement.classList.contains('ordenes-card')){

@@ -27,13 +27,19 @@ function getTodaysOrders(state){
                 if(data[i][j].cocina==cocina){
                     let tr = document.createElement('tr')
                     let preparada = data[i][j].preparada
+                    let updated = data[i][j].updated
                     if(preparada==0){
                         preparada=''
                     }else{
                         preparada='checked'
                     }
+                    if(updated==0){
+                        updated=''
+                    }else{
+                        updated='background-color:#e4d73a'
+                    }
                     tr = `
-                        <tr>
+                        <tr style='${updated}'>
                             <td>${data[i][j].nombre_producto}</td>
                             <td>${data[i][j].cantidad}</td>
                             <td style='${hide}'>
@@ -64,13 +70,14 @@ function getTodaysOrders(state){
                         </tbody>
                     </table>
                 </div>
-                    <button type="button" class="btn btn-success" id="orden_lista" style="${hideButton}">¡Listo!</button>
-                    <div style="transform:translateY(-15px);text-align:center;" class="hidden">
-                        <p style="color:red;">¿Seguro que ya está listo?</p>
-                        <button type="button" class="btn btn-outline-success" id="orden_lista-confirm_button" style="">¡Listo!</button>
-                        <button type="button" class="btn btn-outline-secondary" id="orden_lista-cancel_button" style="">...Espera</button>
-                    </div>
+                    
             `
+            // <button type="button" class="btn btn-success" id="orden_lista" style="${hideButton}">¡Listo!</button>
+            //         <div style="transform:translateY(-15px);text-align:center;" class="hidden">
+            //             <p style="color:red;">¿Seguro que ya está listo?</p>
+            //             <button type="button" class="btn btn-outline-success" id="orden_lista-confirm_button" style="">¡Listo!</button>
+            //             <button type="button" class="btn btn-outline-secondary" id="orden_lista-cancel_button" style="">...Espera</button>
+            //         </div>
             active_ordersContainer.append(div)
             }
             
