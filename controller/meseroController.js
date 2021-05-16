@@ -46,6 +46,7 @@ const createMesa = async (req, res)=>{
         stock TINYINT,
         cocina VARCHAR(50),
         delivery_state TINYINT(1) DEFAULT 0,
+        procesada TINYINT(1) DEFAULT 0,
         order_name VARCHAR(20) NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )  ENGINE=INNODB;
@@ -108,7 +109,9 @@ const updateTable = async (req, res)=>{
             let response = {
                 mesaID: req.body.data[0].mesa,
                 producto: req.body.data[i].nombre_producto,
+                precio: req.body.data[i].precio,
                 cantidad: req.body.data[i].cantidad,
+                total: req.body.data[i].total,
                 cocina: req.body.data[i].cocina
             }
             emmit('Plato updated', response);

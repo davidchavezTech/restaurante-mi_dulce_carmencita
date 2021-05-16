@@ -36,6 +36,7 @@ const cerrarCaja = async (res, name, date, monto,)=>{
 
 const postPayment = async (req, res)=>{
     let mesaName = req.body.mesaName
+    let meseroName = req.body.meseroName
     let efectivo = req.body.efectivo
     if(efectivo==''){
         efectivo=0
@@ -56,6 +57,8 @@ const postPayment = async (req, res)=>{
     }
 
     try{
+        await pool.pool_ordenes.query(`UPDATE ${mesaName} SET procesada='1', cajero='${req.user.nombre}', efectivo='${efectivo}', tarjeta='${tarjeta}', yape='${yape}' WHERE id='1'`);
+        //create mesero table name and drop it
         await pool.pool_ordenes.query(`UPDATE ${mesaName} SET procesada='1', cajero='${req.user.nombre}', efectivo='${efectivo}', tarjeta='${tarjeta}', yape='${yape}' WHERE id='1'`);
         res.json(true)
     }catch(err){

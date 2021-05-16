@@ -6,14 +6,58 @@ let miNombre
 let savedClickedElement
 
 
+
+$.post('/mesero-load_categories').done(( newData ) => {
+    categories = newData
+    let primeraCategoria = newData[0].nombre_de_categoria
+    let cat_div = document.querySelector('.horizontal-div')
+    for(let i=0;newData.length>i;i++){
+        let category = document.createElement('div')
+        category.setAttribute('categoria', newData[i].ID)
+        category.classList = 'category'
+        category.textContent = newData[i].nombre_de_categoria
+        cat_div.append(category)
+    }
+
+    $.post('/inicio-mesero', data).done(( data ) => {
+        console.log(data)
+
+        let tHeadRow = $('#main_thead-tr')
+        miNombre = data.nombres
+        for(let i=0;data.headers.length>i;i++){
+            let th = document.createElement('th')
+            th.textContent = data.headers[i]
+            if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'||data.headers[i]=='cocina'){th.classList.add('hidden')}
+            if(data.headers[i]=='Precio'){th.classList.add('text-align-center')}
+            tHeadRow.append(th)
+        }
+        $('#main_tbody').append(data.html)
+        let trs = document.querySelectorAll('#orden')
+        trs.forEach(tr =>{
+            if(tr.children[5].textContent==0){
+                tr.style.backgroundColor = '#f12929'
+                tr.style.color = 'white'
+            }
+        })
+        mainTable = document.querySelector('table#main_table')
+        // categories = mainTable.querySelectorAll('td.cat-selector')
+        filterCategoriesToOnlyDisplayCategory(primeraCategoria)
+            
+
+    })
+})
+
 let mesasData = {
     url: window.location.href,
+    data: {meseroName: miNombre},
     type: 'POST',
     contentType: 'application/json',
     headers: {
         'Authorization': 'Bearer '+localStorageToken.accessToken
     }
 }
+
+
 $.post('/mesero-load_tables', mesasData).done(( data ) => {
     console.log(data)
     //create mesas orders from server's response
@@ -469,45 +513,6 @@ const data = {
     },
 }
 
-$.post('/mesero-load_categories').done(( newData ) => {
-    categories = newData
-    let primeraCategoria = newData[0].nombre_de_categoria
-    let cat_div = document.querySelector('.horizontal-div')
-    for(let i=0;newData.length>i;i++){
-        let category = document.createElement('div')
-        category.setAttribute('categoria', newData[i].ID)
-        category.classList = 'category'
-        category.textContent = newData[i].nombre_de_categoria
-        cat_div.append(category)
-    }
-
-    $.post('/inicio-mesero', data).done(( data ) => {
-        console.log(data)
-
-        let tHeadRow = $('#main_thead-tr')
-        miNombre = data.nombres
-        for(let i=0;data.headers.length>i;i++){
-            let th = document.createElement('th')
-            th.textContent = data.headers[i]
-            if(data.headers[i]=='id'||data.headers[i]=='stock'||data.headers[i]=='Categoría'||data.headers[i]=='cantidad'||data.headers[i]=='cocina'){th.classList.add('hidden')}
-            if(data.headers[i]=='Precio'){th.classList.add('text-align-center')}
-            tHeadRow.append(th)
-        }
-        $('#main_tbody').append(data.html)
-        let trs = document.querySelectorAll('#orden')
-        trs.forEach(tr =>{
-            if(tr.children[5].textContent==0){
-                tr.style.backgroundColor = '#f12929'
-                tr.style.color = 'white'
-            }
-        })
-        mainTable = document.querySelector('table#main_table')
-        // categories = mainTable.querySelectorAll('td.cat-selector')
-        filterCategoriesToOnlyDisplayCategory(primeraCategoria)
-            
-
-    })
-})
 
 let platosTable = document.querySelector('#main_table')
 function filterCategoriesToOnlyDisplayCategory(selectedCategory){

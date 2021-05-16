@@ -299,6 +299,8 @@ router.post('/get_todays_orders', async (req,res)=>{
                 dataToPush.cancelada_pagada = currentTable[i].cancelada_pagada
                 dataToPush.mesa = currentTable[i].mesa
                 dataToPush.total = currentTable[i].total
+                dataToPush.updated = currentTable[i].updated
+                dataToPush.mesero = currentTable[i].mesero
                 atencion.push(dataToPush)
             }
             dataToSend.push(atencion)

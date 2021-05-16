@@ -31,8 +31,10 @@ send_paid_orderBtn.addEventListener('click',()=>{
     }
     let findMesa = document.getElementById(numero_de_mesa_input.value)
     let mesaName = findMesa.closest('.ordenes-card').getAttribute('mesa_name')
+    let mesero = findMesa.closest('.ordenes-card').getAttribute('mesero')
     let data = {
         mesaName: mesaName,
+        meseroName: mesero,
         efectivo: efectivoInput.value,
         tarjeta: tarjetaInput.value,
         yape: yapeInput.value,
@@ -153,6 +155,42 @@ socket.on('Nueva orden', function(nuevaOrden) {
 });
 socket.on('Plato updated', (data) =>{
     console.log(data)
+    let tr = document.createElement('tr')
+    tr.innerHTML = `
+        <td>${data.producto}</td>
+        <td>${data.cantidad}</td>
+        <td>${tF(data.precio)}</td>
+        <td>
+            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+        </td>
+        <td>${tF(data.total)}</td>
+    `
+    let card = document.getElementById(data.mesaID).parentElement
+    let tBody = card.querySelector('#cuerpo_de_table')
+    let found
+    for(let i = 0;tBody.children.length>i;i++){
+        let nombreDePlato = tBody.children[i].children[0].textContent
+        let qty = tBody.children[i].children[1].textContent
+        if(nombreDePlato==data.producto){
+            found=1
+            if(qty!=data.cantidad){
+                tBody.children[i].style.backgroundColor = '#f3d43b'
+                tBody.children[i].children[1].textContent = data.cantidad
+                tBody.children[i].children[4].textContent = data.total
+            }
+            i=tBody.children.length
+        }
+    }
+    if(!found){
+        tr.style.backgroundColor = '#f3d43b'
+        tBody.append(tr)
+    }
+    let totales = 0
+    for(let i=0;tBody.children.length>i;i++){
+        totales += parseFloat(tBody.children[i].children[4].textContent)
+    }
+    totalContainer = card.querySelector('#precio_total_de_orden')
+    totalContainer.textContent = tF(totales)
 })
 window.addEventListener('click', (e)=>{
     let clickedElement = e.target
@@ -419,10 +457,14 @@ function loadMesasDelDia(){
         console.log(data)
         for(let i=0;data.length>i;i++){
             let nombre_de_current_mesa = data[i][0].nombre_producto
+            let mesero = data[i][0].mesero
+            mesero = mesero.replace(/\s+/g, '').toLowerCase()
+
             let trs = ''
             let div = document.createElement('div')
             div.classList = 'card col-5 ordenes-card'
             div.setAttribute('mesa_name', nombre_de_current_mesa) 
+            div.setAttribute('mesero', mesero) 
             let mesaID = data[i][0].mesa
             let total_de_current_mesa = data[i][0].total
             // console.log(data[0].length)
@@ -433,6 +475,11 @@ function loadMesasDelDia(){
                 let cantidad = data[i][j].cantidad
                 let cancelada_pagada = data[i][j].cancelada_pagada
                 let total = data[i][j].total
+                let updated = data[i][j].updated
+                let backgroundColor = ''
+                if(updated==1){
+                    backgroundColor = 'background-color:#f3d43b;'
+                }
                 if(cancelada_pagada==1){
                     cancelada_pagada=''
                 }else{
@@ -440,7 +487,7 @@ function loadMesasDelDia(){
                 }
                 
                 tr=`
-                    <tr>
+                    <tr style="${backgroundColor}">
                         <td>${nombre}</td>
                         <td>${cantidad}</td>
                         <td>${tF(precio)}</td>
