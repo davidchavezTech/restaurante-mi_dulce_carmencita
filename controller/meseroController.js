@@ -1,5 +1,5 @@
 const pool = require('../database')
-
+const { emit } = require('../utils/socket-io');
 // async function deleteMesasFromPastDays(){
 //     let d = new Date();
 //     let day = d.getDate()
@@ -48,6 +48,7 @@ const createMesa = async (req, res)=>{
         delivery_state TINYINT(1) DEFAULT 0,
         procesada TINYINT(1) DEFAULT 0,
         order_name VARCHAR(20) NULL,
+        cancelada_pagada VARCHAR(20) NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )  ENGINE=INNODB;
     `)
@@ -56,7 +57,6 @@ const createMesa = async (req, res)=>{
 
 
 const insertIntoMesa = async (req, res)=>{
-    // await pool.pool_meseros.query(`DROP TABLE IF EXISTS ${mesaNewName}
     await pool.pool_meseros.query(`
         INSERT INTO ${req.body.orden.mesaName} (id, nombre_producto, cantidad, precio, categoria, stock, cocina)
         VALUES ('${req.body.orden.id}', '${req.body.orden.nombre_producto}', '${req.body.orden.cantidad}', '${req.body.orden.precio}', '${req.body.orden.categoria}', '${req.body.orden.stock}', '${req.body.orden.cocina}');
@@ -66,13 +66,11 @@ const insertIntoMesa = async (req, res)=>{
 
 
 const increaseQuantityOfDish = async (req, res)=>{
-    // await pool.pool_meseros.query(`DROP TABLE IF EXISTS ${mesaNewName}
     await pool.pool_meseros.query(`
         UPDATE ${req.body.orden.mesaName} SET cantidad='${req.body.orden.cantidad}' WHERE id='${req.body.orden.id}'
     `)
     res.json('Se incrementó la cantidad en la DDBB corréctamente')
 }
-const { emmit } = require('../utils/socket-io');
 const updateTable = async (req, res)=>{
     let current_orders = await pool.pool_ordenes.query(`
         SELECT id, nombre_producto, cantidad FROM ${req.body.data[0].order_name}
@@ -95,7 +93,7 @@ const updateTable = async (req, res)=>{
                     total: req.body.data[i].total,
                     cocina: req.body.data[i].cocina
                 }
-                emmit('Plato updated', response);
+                emit('Plato updated', response);
                 found=1
                 j=req.body.data[j].length
             }
@@ -114,7 +112,7 @@ const updateTable = async (req, res)=>{
                 total: req.body.data[i].total,
                 cocina: req.body.data[i].cocina
             }
-            emmit('Plato updated', response);
+            emit('Plato updated', response);
         }
         //Update total of all orders
         await pool.pool_ordenes.query(`
@@ -125,9 +123,15 @@ const updateTable = async (req, res)=>{
     res.json('Se actualizó la orden corréctamente')
 }
 
+const isDishCancelled = async (req, res)=>{
+    let response = await pool.pool_meseros.query(`
+        SELECT cancelada_pagada FROM ${req.body.data.mesa_ddbb_name} WHERE nombre_producto = '${req.body.data.platoName}' 
+    `)
+    res.json(response[0].cancelada_pagada)
+}
+
 
 const dropDish = async (req, res)=>{
-    // await pool.pool_meseros.query(`DROP TABLE IF EXISTS ${mesaNewName}
     await pool.pool_meseros.query(`
         DELETE FROM ${req.body.orden.mesaName} WHERE id="${req.body.orden.id}";
     `)
@@ -188,5 +192,6 @@ module.exports = {
     dropDish,
     loadTables,
     dropTable,
-    updateTable
+    updateTable,
+    isDishCancelled
 }

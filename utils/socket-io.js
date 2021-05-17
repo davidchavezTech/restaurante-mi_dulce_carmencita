@@ -32,6 +32,11 @@ exports.socketConnection = (server) => {
             console.log('se agregó un plato a una orden existente')
             io.emit('add dish to order', data);
         })
+        //Nueva cambio de stock de plato
+        socket.on('Orden cancelada', (platoName_mesaID) => {
+            console.log('se canceló un plato')
+            io.emit('Orden cancelada', platoName_mesaID);
+        })
     });
 };
-exports.emmit = (event, response) => io.emit(event, response);
+exports.emit = (event, response) => io.emit(event, response);

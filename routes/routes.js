@@ -8,6 +8,7 @@ const pool = require('../database')
 const jwt = require('jsonwebtoken')
 const userModel = require('../model/userModel')
 const cajaModel = require('../model/cajaModel')
+const cajaController = require('../controller/cajaController')
 const cocinaModel = require('../model/cocinaModel')
 const meseroController = require('../controller/meseroController')
 const adminController = require('../controller/adminController')
@@ -320,7 +321,18 @@ router.post('/admin-cancelar_plato', async (req, res)=>{
                 let admin = foundUser[0].names
                 let plato = req.body.plato
                 let mesaName = req.body.mesaName
+                let mesero = req.body.mesero
+                let mesaID = req.body.mesaID
+                mesero = mesero.replace(/\s+/g, '').toLowerCase()
+                let d = new Date();
+                let day = d.getDate()
+                if(day<10) day = '0' + day
+                let month = d.getMonth() +1
+                if(month<10) month = '0' + month
+                let year = d.getFullYear()
+                meseroTable  =  `${day}_${month}_${year}_${mesero}_${mesaID}`
                 await pool.pool_ordenes.query(`UPDATE ${mesaName} SET cancelada_pagada='${cancelada_pagada}', administrador='${admin}' WHERE nombre_producto='${plato}'`)
+                await pool.pool_meseros.query(`UPDATE ${meseroTable} SET cancelada_pagada='${cancelada_pagada}' WHERE nombre_producto='${plato}'`)
 
                 res.json(cancelada_pagada)
             }else{
@@ -335,11 +347,7 @@ router.post('/admin-cancelar_plato', async (req, res)=>{
     }
 })
 
-router.post('/caja-pay_pedido', isUserLoggedIn, cajaModel.postPayment)
 
-router.post('/set_nuevo_ingreso_a_caja', isUserLoggedIn, cajaModel.postNuevoIngresoAcaja)
-
-router.post('/caja-caja_amount_request', isUserLoggedIn, cajaModel.caja_amount_request)
 
 router.post('/caja-cerrar_caja', isUserLoggedIn, async (req, res)=>{
     let d = new Date();
@@ -436,7 +444,7 @@ router.post('/mesero-drop_dish_from_order', isUserLoggedIn, meseroController.dro
 router.post('/mesero-load_tables', isUserLoggedIn, meseroController.loadTables)
 router.post('/mesero-drop_table', isUserLoggedIn, meseroController.dropTable)
 router.post('/post_update_orden', meseroController.updateTable)
-module.exports = router;
+router.post('/is_dish_cancelled', meseroController.isDishCancelled)
 
 //**************************COCINA*****************************//
 //**************************COCINA*****************************//
@@ -445,6 +453,13 @@ router.post('/cocina-get_todays_orders', cocinaModel.getOrders)
 router.post('/cocina-procesar_orden', isUserLoggedIn, cocinaModel.procesarOrden)
 router.post('/cocina-set_stock', cocinaModel.setStock)
 
+//**************************CAJA*****************************//
+//**************************CAJA*****************************//
+
+router.post('/caja-pay_pedido', isUserLoggedIn, cajaModel.postPayment)
+router.post('/set_nuevo_ingreso_a_caja', isUserLoggedIn, cajaModel.postNuevoIngresoAcaja)
+router.post('/caja-caja_amount_request', isUserLoggedIn, cajaModel.caja_amount_request)
+router.post('/reset-plato-to-zero', cajaController.resetDishToZero)
 
 //**************************ADMINISTRACIÓN*****************************//
 //**************************ADMINISTRACIÓN*****************************//
@@ -476,3 +491,5 @@ router.post('/excel-R_atenciones', adminController.excel_rAtenciones)
 router.post('/excel-R_comandas', adminController.excel_rComandas)
 router.post('/excel-R_caja', adminController.excel_rCaja)
 router.post('/excel-R_productos', adminController.excel_rProductos)
+
+module.exports = router;

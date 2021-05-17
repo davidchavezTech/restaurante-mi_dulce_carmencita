@@ -102,3 +102,7 @@ socket.on('Plato updated', (data) =>{
         card_tbody.append(tr)
     }
 })
+
+socket.on('Plato processed', (mesaID) =>{
+    document.getElementById(mesaID).remove()
+})

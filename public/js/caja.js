@@ -33,6 +33,7 @@ send_paid_orderBtn.addEventListener('click',()=>{
     let mesaName = findMesa.closest('.ordenes-card').getAttribute('mesa_name')
     let mesero = findMesa.closest('.ordenes-card').getAttribute('mesero')
     let data = {
+        mesaID: numero_de_mesa_input.value,
         mesaName: mesaName,
         meseroName: mesero,
         efectivo: efectivoInput.value,
@@ -46,8 +47,7 @@ send_paid_orderBtn.addEventListener('click',()=>{
         },
     }
     $.post('/caja-pay_pedido', data).done(( data ) => {
-        // let cajaMoney = localStorage.getItem('cajaMoney')
-        // if(cajaMoney) cajaMoney = parseFloat(cajaMoney, 2)
+        console.log(data)
         if(data==true){
             let efectivoPayment = efectivoInput.value
             if(efectivoPayment != ''){
@@ -107,6 +107,7 @@ socket.on('Nueva orden', function(nuevaOrden) {
     let div = document.createElement('div')
     div.classList = 'card col-5 ordenes-card'
     div.setAttribute('mesa_name', nuevaOrden[0].nombre_producto)
+    div.setAttribute('mesero', nuevaOrden[0].mesero)
     let html = ''
     for(i=1;nuevaOrden.length>i;i++){
         let newHTML= `
@@ -261,6 +262,8 @@ cancelar_plato_confirmBtn.addEventListener('click',()=>{
     //run the following if only one plato is being cancelled
     if(cancelar_un_plato_o_todos==1){
         let is_checkbox_checked = globalClickedElement.checked
+        let mesero = globalClickedElement.closest('.ordenes-card').getAttribute('mesero')
+        let mesaID = globalClickedElement.closest('.card-body').children[0].id
         let email = cancelar_plato_emailInput.value
         let password = cancelar_plato_passwordInput.value
         let data = {
@@ -268,17 +271,26 @@ cancelar_plato_confirmBtn.addEventListener('click',()=>{
             password,
             plato: plato_para_cancelarName,
             mesaName: DDBBTableName,
-            isItChecked: is_checkbox_checked
+            isItChecked: is_checkbox_checked,
+            mesero,
+            mesaID
         }
-        $.post('/admin-cancelar_plato', data).done(( data ) => {
-            console.log(data)
+        $.post('/admin-cancelar_plato', data).done(async ( data ) => {
             if(data===false) {
                 admin_confirm_error.classList.remove('hidden')
                 return
             }
-            console.log(data)
             if(data==1) {
                 globalClickedElement.checked=false
+                globalClickedElement.parentElement.parentElement.children[1].textContent = 0
+                let data = {
+                    plato: plato_para_cancelarName,
+                    ordesrTableName: DDBBTableName,
+                    mesero: mesero,
+                    mesaID
+                }
+                await $.post('/reset-plato-to-zero', data)
+                globalClickedElement.closest('tr').style.backgroundColor = ''
             }else if(data==0){
                 globalClickedElement.checked=true
             }
@@ -294,6 +306,11 @@ cancelar_plato_confirmBtn.addEventListener('click',()=>{
 
             modal_adminPermission_for_canceling_plato.style.display = 'none'
             clearAdminInputFields()
+            platoName_mesaID = {
+                platoName: plato_para_cancelarName,
+                mesaID: currentMesaID
+            }
+            socket.emit('Orden cancelada', platoName_mesaID)
         })
     }else if(cancelar_un_plato_o_todos=='todos'){
         let is_checkbox_checked = globalClickedElement.checked
@@ -622,7 +639,6 @@ document.querySelector('#cerrar_caja-input').addEventListener('keyup', (e)=>{
     if(e.target.value>0) document.querySelector('#confirm-cerrar_caja').disabled = false
     else document.querySelector('#confirm-cerrar_caja').disabled = true
 })
-console.log(document.querySelector('#logoutCont'))
 $(document).ready(function (){
     document.querySelector('#logoutCont').style.display = 'none'
 })

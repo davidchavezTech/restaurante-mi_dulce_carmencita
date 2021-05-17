@@ -1,4 +1,5 @@
 const pool = require('../database')
+const { emit } = require('../utils/socket-io');
 
 const aperturarCaja = async (res, montoDeApertura, nombres)=>{
     try{
@@ -58,8 +59,18 @@ const postPayment = async (req, res)=>{
 
     try{
         await pool.pool_ordenes.query(`UPDATE ${mesaName} SET procesada='1', cajero='${req.user.nombre}', efectivo='${efectivo}', tarjeta='${tarjeta}', yape='${yape}' WHERE id='1'`);
-        //create mesero table name and drop it
-        await pool.pool_ordenes.query(`UPDATE ${mesaName} SET procesada='1', cajero='${req.user.nombre}', efectivo='${efectivo}', tarjeta='${tarjeta}', yape='${yape}' WHERE id='1'`);
+        //create mesero table name, drop table and emit to cocina and mesero to delete that mesa
+        let d = new Date();
+        let day = d.getDate()
+        if(day<10) day = "0" + day
+        let month = d.getMonth() + 1
+        if(month<10) month = "0" + month
+        let year = d.getFullYear()
+        mesaID = req.body.mesaID
+        meseroName = meseroName.replace(/\s+/g, '').toLowerCase()
+        let mesero_db_tableName  =  `${day}_${month}_${year}_${meseroName}_${mesaID}`
+        await pool.pool_meseros.query(`DROP TABLE IF EXISTS ${mesero_db_tableName}`)
+        emit('Plato processed', mesaID);
         res.json(true)
     }catch(err){
         res.json(err)

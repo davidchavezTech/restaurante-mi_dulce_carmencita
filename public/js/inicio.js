@@ -102,13 +102,14 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
         let trs = ''
         let total = 0
         for(let j=2;data[i].length>j;j++){
-            let qnt = parseFloat(data[i][j].cantidad, 2)
+            let qnt
+            (data[i][j].cancelada_pagada==0) ? qnt = 0 : qnt = parseFloat(data[i][j].cantidad, 2)
             let price = parseFloat(data[i][j].precio, 2)
             total+=qnt*price
             trs += `<tr id="orden">
                 <td class="hidden">${data[i][j].id}</td>
                 <td style="padding-top:15px;">${data[i][j].nombre_producto}</td>
-                <td class="text-align-center" style="padding-top:15px;">${data[i][j].cantidad}</td>
+                <td class="text-align-center" style="padding-top:15px;">${qnt}</td>
                 <td class="text-align-center" style="padding-top:15px;">${tF(data[i][j].precio)}</td>
                 <td class="hidden">${data[i][j].categoria}</td>
                 <td class="hidden cat-selector">${data[i][j].stock}</td>
@@ -120,7 +121,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
         if(data[i][2]){
             if(data[i][2].delivery_state==1){
                 grayedOut = 'gray-out'
-                // display=' hidden'
+                display='opacity:0.3;pointer-events:none'
             }else{
                  grayedOut = ''
             }
@@ -153,7 +154,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
                 </div>
                 <div>
                     <img src="img/check.svg" class="check" alt="">
-                    <img src="img/delete.svg" class="trashcan" alt="">
+                    <img src="img/delete.svg" class="trashcan" style="${display};" alt="">
                 </div>
             </div>
         </div>
@@ -162,7 +163,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
     }
 })
 
-$("#main_table").on("click", "tr", function(e) {
+$("#main_table").on("click", "tr", async function(e) {
     let orig = $(e.currentTarget)[0]
     if(orig.id == 'main_thead-tr') {return}
     if(orig.style.color == 'white') {return}
@@ -179,9 +180,35 @@ $("#main_table").on("click", "tr", function(e) {
             let gotAmatch = false
             for(let i=0;containerTableRows.children.length>i;i++){//check if already added, if so, add one more to quantity
                 //************************************** */
+                let stopper
                 let idForRowBeenSearched = containerTableRows.children[i].children[0].textContent
                 if(clickedRowID==idForRowBeenSearched){//got a match!
                     let currentQuantity = containerTableRows.children[i].children[2].textContent
+                    if(currentQuantity==0){
+                        let mesa_ddbb_name = container.children[0].getAttribute('mesero-mesa_name')
+                        let platoName = orig.children[1].textContent
+                        const data = {
+                            url: window.location.href,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            headers: {
+                                'Authorization': 'Bearer '+localStorageToken.accessToken
+                            },
+                            data:{
+                                mesa_ddbb_name,
+                                platoName
+                            }
+                        }
+                        await $.post('/is_dish_cancelled', data).done(( response ) => {
+                            //Still cancelled
+                            //esta orden ha sido cancelada, acercarse a caja para re-habilitarla, return
+                            if(response==0){
+                                showError('Esta orden ha sido cancelada, acercarse a caja para re-habilitarla')
+                                stopper=true
+                            }
+                        })
+                    }
+                    if(stopper) return
                     currenQuantity = parseFloat(currentQuantity, 2)
                     let newQuantity = currenQuantity + 1
                     containerTableRows.children[i].children[2].textContent = newQuantity
@@ -199,9 +226,12 @@ $("#main_table").on("click", "tr", function(e) {
                 //append the copied <tr>
                 container.children[0].children[1].children[0].children[1].append(copy)
                 i=containerTableRows.children.length
-                //next code expands div when you add a new order --This fix is needed for mobile as on pc, it does it automatically
-                let divToBeExpanded = container.children[0].children[1]
-                divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
+                //next code expands div when you add a new order --This fix is needed for mobile. On pc, it does it automatically
+                svgArrowSrc = /[^/]*$/.exec(container.querySelector('.expand_arrow').src)[0];
+                if(svgArrowSrc!='expand_arrow.svg'){
+                    let divToBeExpanded = container.children[0].children[1]
+                    divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
+                }
                 // if(container.children[0].children[0].classList.contains('gray-out')){
                 //     let tr_and_mesa_id = {}
                 //     tr_and_mesa_id.mesaID = container.children[0].id
@@ -219,20 +249,15 @@ $("#main_table").on("click", "tr", function(e) {
             //append TR copy
             agregarPlatoaDDBB(orig)
             container.children[0].children[1].children[0].children[1].append(copy)
-            let divToBeExpanded = container.children[0].children[1]
-            divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
+            svgArrowSrc = /[^/]*$/.exec(container.querySelector('.expand_arrow').src)[0];
+            if(svgArrowSrc!='expand_arrow.svg'){
+                let divToBeExpanded = container.children[0].children[1]
+                divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
+            }
         }
         //Get the total from all platos selected
-        let completeTotal = 0
-        for(let i=0;containerTableRows.children.length>i;i++){
-            let quantity = containerTableRows.children[i].children[2].textContent
-            let precio = containerTableRows.children[i].children[3].textContent
-            quantity = parseInt(quantity)
-            precio = parseFloat(precio, 2)
-            let currentTotal = quantity*precio
-            completeTotal = completeTotal + currentTotal
-        }
-        document.querySelector('#precio_total').textContent = tF(completeTotal)
+        
+        recalculateMesaTotal()
         
         //add the color effect of adding element
         //add glow effect
@@ -454,7 +479,8 @@ function emitAndSaveToDDBBSelectedTable(clickedElement){
                 precio: tableRow.children[3].textContent, 
                 cantidad: tableRow.children[2].textContent, 
                 total: currentTotal,
-                cocina:tableRow.children[6].textContent
+                cocina:tableRow.children[6].textContent,
+                mesero:tableRow.children[6].textContent
             }
             data.push(newObject)
         })
@@ -689,5 +715,48 @@ window.onclick = function(event) {
       modal.style.display = "none";
     }else if (event.target == deleteModal) {
       deleteModal.style.display = "none";
+    }
+}
+
+socket.on('Plato processed', (mesaID) =>{
+    document.getElementById(mesaID).remove()
+})
+
+socket.on('Orden cancelada', (platoName_mesaID) =>{
+    console.log(platoName_mesaID)
+    let mesaID = platoName_mesaID.mesaID
+    let receivedPlatoName = platoName_mesaID.platoName
+    let tBody = document.getElementById(mesaID).querySelector('#main_tbody')
+    for(let i=0;tBody.children.length>i;i++){
+        let plato = tBody.children[i].children[1].textContent
+            if(plato==receivedPlatoName){
+                let qtyContainer = tBody.children[i].children[2]
+                qtyContainer.textContent = 0
+            }
+    }
+    recalculateMesaTotal(mesaID)
+
+})
+function recalculateMesaTotal(mesaID){
+    let completeTotal = 0
+    let rowContainers
+    if(mesaID){//means that mesa is not selected mesa (not in "container")
+        rowContainers = document.getElementById(+mesaID).querySelector('#main_tbody')
+    }else{
+        rowContainers = container.children[0].children[1].children[0].children[1]
+    }
+    for(let i=0;rowContainers.children.length>i;i++){
+        let quantity = rowContainers.children[i].children[2].textContent
+        let precio = rowContainers.children[i].children[3].textContent
+        quantity = parseInt(quantity)
+        precio = parseFloat(precio, 2)
+        let currentTotal = quantity*precio
+        completeTotal = completeTotal + currentTotal
+    }
+    if(mesaID){
+        let currentMesa = document.getElementById(parseInt(mesaID))
+        currentMesa.querySelector('#precio_total').textContent = tF(completeTotal)
+    }else{
+        container.querySelector('#precio_total').textContent = tF(completeTotal)
     }
 }
