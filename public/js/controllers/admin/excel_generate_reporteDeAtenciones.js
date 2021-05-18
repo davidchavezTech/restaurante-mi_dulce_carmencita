@@ -87,7 +87,7 @@ function excel_generate_reporteDeAtenciones(SheetTitle, dateRange){
 		
 		// excel.set({row:3,value: 30  });																	// We want ROW 3 to be EXTRA TALL
 
-		var headers=["Fecha", "Hora", "Estado", "Preparado", "Mesero", "Cajero","Efectivo","Tarjeta","Yape", "Total de la orden", "Vuelto"];							// This array holds the HEADERS text
+		var headers=["Fecha", "Hora", "Estado", "Mesero", "Cajero","Efectivo","Tarjeta","Yape", "Total de la orden", "Vuelto"];							// This array holds the HEADERS text
 		var formatHeader=excel.addStyle ( { 															// Format for headers
 				border: "none,none,none,thin #333333", 													// 		Border for header
 				font: "Calibri 12 #03bafc B"}); 														// 		Font for headers
@@ -97,7 +97,7 @@ function excel_generate_reporteDeAtenciones(SheetTitle, dateRange){
 			excel.set(0,i,undefined,"auto");															// Set COLUMN width to auto (according to the standard this is only valid for numeric columns)
 		}
 		//set "Vuelto" header to the right
-		excel.set(0,10,0,'Vuelto',Style_Set_header_to_right)
+		excel.set(0,9,0,'Vuelto',Style_Set_header_to_right)
 		
 		
 		// Now let's write some data
@@ -131,14 +131,14 @@ function excel_generate_reporteDeAtenciones(SheetTitle, dateRange){
 			if(data[i][0].procesada==0) data[i][0].procesada = 'No fue procesada'
 			else if(data[i][0].procesada==1) data[i][0].procesada = 'Procesada'
 			excel.set(0,2,i+1,data[i][0].procesada)
-			if(data[i][0].preparada==0) data[i][0].preparada = 'No fue Preparada'
-			else if(data[i][0].preparada==1) data[i][0].preparada = 'Preparada'
-			excel.set(0,3,i+1,data[i][0].preparada)
-			excel.set(0,4,i+1,data[i][0].mesero)
-			excel.set(0,5,i+1,data[i][0].cajero)
-			excel.set(0,6,i+1,data[i][0].efectivo, Style_Money)
-			excel.set(0,7,i+1,data[i][0].tarjeta, Style_Money)
-			excel.set(0,8,i+1,data[i][0].yape, Style_Money)
+			// if(data[i][0].preparada==0) data[i][0].preparada = 'No fue Preparada'
+			// else if(data[i][0].preparada==1) data[i][0].preparada = 'Preparada'
+			excel.set(0,3,i+1,data[i][0].mesero)
+			excel.set(0,4,i+1,data[i][0].cajero)
+			excel.set(0,5,i+1,data[i][0].efectivo, Style_Money)
+			excel.set(0,6,i+1,data[i][0].tarjeta, Style_Money)
+			excel.set(0,7,i+1,data[i][0].yape, Style_Money)
+			// excel.set(0,8,i+1,data[i][0].yape, Style_Money)
 			// let vuelto
 			// if(data[i][0].efectivo=='NO') vuelto = "NO"
 			// else{
@@ -152,8 +152,8 @@ function excel_generate_reporteDeAtenciones(SheetTitle, dateRange){
 					total+=parseFloat(data[i][k].total)
 				}
 			}
-			excel.set(0,9,i+1,total, Style_Money)
-			excel.set(0,10,i+1,`=(G${i+2}+H${i+2}+I${i+2})-J${i+2}`, Style_Money_black)
+			excel.set(0,8,i+1,total, Style_Money)
+			excel.set(0,9,i+1,`=(F${i+2}+G${i+2}+H${i+2})-I${i+2}`, Style_Money_black)
 			// vuelto=="NO" ? excel.set(0,11,i+1,data[i][0].total, Style_Money) : excel.set(0,11,i+1,0, Style_Money)
 			
 																					// we will fill the 50 rows
@@ -170,7 +170,7 @@ function excel_generate_reporteDeAtenciones(SheetTitle, dateRange){
 		// excel.set(0, 0, 50, "This cells are merged!", mergedCellStyle, 5);								// This cells are merged using colspan
 
 		// excel.set(0,0,undefined,22);																	// Set COLUMN 1 to 30 chars width
-		excel.set(0,11,undefined,22);																	// Set COLUMN 1 to 30 chars width
+		excel.set(0,8,undefined,22);																	// Set COLUMN 1 to 30 chars width
 		// excel.set(0,3,undefined,30);																	// Set COLUMN 3 to 20 chars width
 		// excel.set(0,4,undefined,20, excel.addStyle( {align:"R"}));										// Align column 4 to the right
 		// excel.set(0,1,3,undefined,excel.addStyle( {align:"L T"}));										// Align cell 1-3  to LEFT-TOP

@@ -186,12 +186,7 @@ socket.on('Plato updated', (data) =>{
         tr.style.backgroundColor = '#f3d43b'
         tBody.append(tr)
     }
-    let totales = 0
-    for(let i=0;tBody.children.length>i;i++){
-        totales += parseFloat(tBody.children[i].children[4].textContent)
-    }
-    totalContainer = card.querySelector('#precio_total_de_orden')
-    totalContainer.textContent = tF(totales)
+    getHowMuchIsOwed(card.parentElement)
 })
 window.addEventListener('click', (e)=>{
     let clickedElement = e.target
