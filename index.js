@@ -99,11 +99,11 @@ for (const name of Object.keys(nets)) {
 // console.log(results['Wi-Fi'][0]+':'+PORT)
 
 
-http.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+// http.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
-// http.listen(PORT, async () => {
-//    await open( `http://${results['Wi-Fi'][0]}:${PORT}` );
-// });
+http.listen(PORT, async () => {
+   await open( `http://${results['Wi-Fi'][0]}:${PORT}` );
+});
 
 // http.listen(PORT);
 
