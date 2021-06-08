@@ -186,7 +186,21 @@ socket.on('Plato updated', (data) =>{
         tr.style.backgroundColor = '#f3d43b'
         tBody.append(tr)
     }
-    getHowMuchIsOwed(card.parentElement)
+    // getHowMuchIsOwed(card.parentElement)
+
+
+    //calculate new total
+    let newTotal = 0
+    let trsForTotals = tBody.querySelectorAll('tr');
+
+    for(let i=0;trsForTotals.length>i;i++){
+        let totalForCurrentDish = trsForTotals[i].children[4].textContent
+        newTotal += parseFloat(totalForCurrentDish)
+    }
+
+    card.querySelector('#precio_total_de_orden').textContent = newTotal
+
+
 })
 window.addEventListener('click', (e)=>{
     let clickedElement = e.target

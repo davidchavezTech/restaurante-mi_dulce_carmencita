@@ -208,7 +208,8 @@ $("#main_table").on("click", "tr", async function(e) {
                             }
                         })
                     }
-                    if(stopper) return
+                    //**************************************************************************** */
+                    // if(stopper) return
                     currenQuantity = parseFloat(currentQuantity, 2)
                     let newQuantity = currenQuantity + 1
                     containerTableRows.children[i].children[2].textContent = newQuantity
@@ -518,6 +519,8 @@ function emitAndSaveToDDBBSelectedTable(clickedElement){
 
                     socket.emit('Nueva orden', data)
                     clickedElement.closest('.mesa_container').children[0].classList.add('gray-out')
+                    clickedElement.nextElementSibling.style.opacity = 0.3;
+                    clickedElement.nextElementSibling.style.pointerEvents = 'none';
                     let mesa_container = clickedElement.closest('.mesa_container')
                     mesa_container.querySelector('.comanda-info').style.maxHeight = ''
                     mesa_container.children[0].children[1].src = 'img/expand_arrow.svg'
