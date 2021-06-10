@@ -273,4 +273,30 @@ input[type=number] {
     padding:20px;
 }.pointerEventsAll{
     pointer-events: all;
+}.customToast{
+    color:white;
+    font-size:18px;
+    position: sticky;
+    top:85vh;
+    margin-left:20px;
+    padding: 5px 15px;
+    background-color: #47d342;
+    font-weight: 600;
+    opacity: 0;
+}.showToast{
+    animation-name: showToast;
+    animation-duration: 3s;
+    animation-delay: 0s;
+}
+@keyframes showToast {
+    0%   {opacity:0;}
+    10%  {opacity:100%;}
+    90%  {opacity:100%;}
+    100%   {opacity:0;}
+}
+.customToastWrapper{
+    position: absolute;
+    top: 0;
+    height: 100vh;
+    pointer-events: none;
 }

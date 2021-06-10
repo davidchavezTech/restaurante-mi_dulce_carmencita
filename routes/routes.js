@@ -444,6 +444,7 @@ router.post('/mesero-drop_dish_from_order', isUserLoggedIn, meseroController.dro
 router.post('/mesero-load_tables', isUserLoggedIn, meseroController.loadTables)
 router.post('/mesero-drop_table', isUserLoggedIn, meseroController.dropTable)
 router.post('/post_update_orden', meseroController.updateTable)
+router.post('/post_update_meseroTable', meseroController.updateMeseroTable)
 router.post('/is_dish_cancelled', meseroController.isDishCancelled)
 
 //**************************COCINA*****************************//

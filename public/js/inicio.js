@@ -137,7 +137,7 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
                     <tr class="comanda-row">
                         <th class="hidden">id</th>
                         <th>Producto</th>
-                        <th>cantidad</th>
+                        <th>Cantidad</th>
                         <th class="text-align-center">Precio</th>
                         <th class="hidden">Categoría</th>
                         <th class="hidden">stock</th>
@@ -233,6 +233,7 @@ $("#main_table").on("click", "tr", async function(e) {
                     let divToBeExpanded = container.children[0].children[1]
                     divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
                 }
+                customSuccessToast('Cantidad aumentada')
                 // if(container.children[0].children[0].classList.contains('gray-out')){
                 //     let tr_and_mesa_id = {}
                 //     tr_and_mesa_id.mesaID = container.children[0].id
@@ -255,6 +256,7 @@ $("#main_table").on("click", "tr", async function(e) {
                 let divToBeExpanded = container.children[0].children[1]
                 divToBeExpanded.style.maxHeight = divToBeExpanded.scrollHeight + "px"
             }
+            customSuccessToast('Plato agregado')
         }
         //Get the total from all platos selected
         
@@ -372,6 +374,52 @@ $("#comanda-selected").on("click", "tr", function(e) {
         }
         document.querySelector('#precio_total').textContent = tF(completeTotal)
         dropPlatoFromDDBB(e.currentTarget)
+        customSuccessToast('Plato eliminado')
+    }else if(e.currentTarget.id=='orden'&&e.currentTarget.closest('.mesa_container').children[0].classList.contains('gray-out')){
+        e.currentTarget.children[2].textContent = 0
+        let selectedMesa = e.currentTarget.closest('.mesa_container')
+        let currentOrdenes = selectedMesa.querySelectorAll('#orden')
+        let newTotal = 0
+        for(let i = 0; currentOrdenes.length>i;i++){
+            let currentQnt = parseFloat(currentOrdenes[i].children[2].textContent)
+            let currentPrecioUnitario = parseFloat(currentOrdenes[i].children[3].textContent)
+            newTotal += (currentQnt * currentPrecioUnitario)
+        }
+        let precioTotalContainer = selectedMesa.querySelector('#precio_total')
+        precioTotalContainer.textContent = newTotal
+        let mesaID = e.currentTarget.closest('.mesa_container').id
+        let meseronName = miNombre
+        let order_name = selectedMesa.getAttribute('mesero-mesa_name')
+        let nuevoTotal = precioTotalContainer.textContent
+        let data = [
+            {
+                mesa: mesaID,
+                mesero: meseronName,
+                nombre_producto: "total",
+                order_name: order_name,
+                total: nuevoTotal
+            }
+        ];
+        for(let i = 0; currentOrdenes.length>i;i++){
+            let currentQnt = parseInt(currentOrdenes[i].children[2].textContent)
+            let currentCocina = currentOrdenes[i].children[6].textContent
+            let nombre_producto = currentOrdenes[i].children[1].textContent
+            let currentPrecioUnitario = parseFloat(currentOrdenes[i].children[3].textContent)
+            let totalDeplato = (currentQnt * currentPrecioUnitario)
+            data.push({
+                cantidad: currentQnt,
+                cocina: currentCocina,
+                mesero: miNombre,
+                nombre_producto,
+                precio: currentPrecioUnitario,
+                total: totalDeplato
+            })
+        };
+        $.post('/post_update_meseroTable', {data}).done(( data ) => {
+            console.log(data)
+            if(!data) showError("No se pudo conectar a la base de datos :'(");
+        })
+        customSuccessToast('Plato cancelado')
     }
 })
 let mainTable
@@ -445,6 +493,7 @@ this.addEventListener('click', (e)=>{
     }else if(clickedElement.id=='confirm-mesa_send'){
         emitAndSaveToDDBBSelectedTable(savedClickedElement)
         sendModal.style.display = "none";
+        customSuccessToast('Orden enviada')
     }
 })
 
@@ -495,6 +544,7 @@ function emitAndSaveToDDBBSelectedTable(clickedElement){
 
             // //insert mesa name
             data.data[0].order_name = clickedElement.closest('.mesa_container').getAttribute('order')
+            console.log(data)
             $.post('/post_update_orden', data).done(( data ) => {
                 console.log(data)
                 if(data) {
@@ -647,7 +697,7 @@ document.querySelector('#accept_mesa').addEventListener('click', (e)=>{
                         <tr class="comanda-row">
                             <th class="hidden">id</th>
                             <th>Producto</th>
-                            <th>cantidad</th>
+                            <th>Cantidad</th>
                             <th class="text-align-center">Precio</th>
                             <th class="hidden">Categoría</th>
                             <th class="hidden">stock</th>
@@ -707,6 +757,7 @@ confirmMesaDeleteBtn.addEventListener('click', ()=>{
             }
             $.post('/mesero-drop_table', mesaData).done(( data ) => {
                 console.log(data)
+                customSuccessToast('Mesa eliminada')
             })
             return
         }
@@ -762,4 +813,12 @@ function recalculateMesaTotal(mesaID){
     }else{
         container.querySelector('#precio_total').textContent = tF(completeTotal)
     }
+}
+let customToast = document.querySelector('.customToast')
+function customSuccessToast(msg){
+    customToast.textContent = msg
+    customToast.classList.remove('showToast');
+    setTimeout(() => {
+        customToast.classList.add('showToast');
+    }, 100);
 }
