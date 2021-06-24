@@ -299,4 +299,7 @@ input[type=number] {
     top: 0;
     height: 100vh;
     pointer-events: none;
+}#comanda-selected{
+    overflow-y: scroll;
+    max-height: 480px;
 }

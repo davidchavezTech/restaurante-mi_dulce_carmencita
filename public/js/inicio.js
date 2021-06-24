@@ -105,8 +105,10 @@ $.post('/mesero-load_tables', mesasData).done(( data ) => {
             let qnt
             (data[i][j].cancelada_pagada==0) ? qnt = 0 : qnt = parseFloat(data[i][j].cantidad, 2)
             let price = parseFloat(data[i][j].precio, 2)
+            let display = ''
+            if(data[i][j].cantidad==0) display='none';
             total+=qnt*price
-            trs += `<tr id="orden">
+            trs += `<tr id="orden" style="display:${display}">
                 <td class="hidden">${data[i][j].id}</td>
                 <td style="padding-top:15px;">${data[i][j].nombre_producto}</td>
                 <td class="text-align-center" style="padding-top:15px;">${qnt}</td>
@@ -213,6 +215,7 @@ $("#main_table").on("click", "tr", async function(e) {
                     currenQuantity = parseFloat(currentQuantity, 2)
                     let newQuantity = currenQuantity + 1
                     containerTableRows.children[i].children[2].textContent = newQuantity
+                    containerTableRows.children[i].style.display = 'contents'
                     containerTableRows.children[i].style.backgroundColor = ''
                     if(containerTableRows.closest('.mesa_container').children[0].classList.contains('orange')){
                         containerTableRows.closest('.mesa_container').children[0].classList.remove('orange')
@@ -377,6 +380,7 @@ $("#comanda-selected").on("click", "tr", function(e) {
         customSuccessToast('Plato eliminado')
     }else if(e.currentTarget.id=='orden'&&e.currentTarget.closest('.mesa_container').children[0].classList.contains('gray-out')){
         e.currentTarget.children[2].textContent = 0
+        e.currentTarget.style.display = 'none'
         let selectedMesa = e.currentTarget.closest('.mesa_container')
         let currentOrdenes = selectedMesa.querySelectorAll('#orden')
         let newTotal = 0
