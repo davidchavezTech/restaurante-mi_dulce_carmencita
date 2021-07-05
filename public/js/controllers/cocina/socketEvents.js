@@ -104,5 +104,6 @@ socket.on('Plato updated', (data) =>{
 })
 
 socket.on('Plato processed', (mesaID) =>{
-    document.getElementById(mesaID).remove()
+    let mesa = document.getElementById(mesaID)
+    if(mesa) mesa.remove();
 })

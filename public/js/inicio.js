@@ -20,7 +20,6 @@ $.post('/mesero-load_categories').done(( newData ) => {
     }
 
     $.post('/inicio-mesero', data).done(( data ) => {
-        console.log(data)
 
         let tHeadRow = $('#main_thead-tr')
         miNombre = data.nombres

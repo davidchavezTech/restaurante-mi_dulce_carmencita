@@ -177,7 +177,7 @@ router.post('/inicio-mesero', isUserLoggedIn, async (req, res) => {
         return parseFloat(number).toFixed(2)
     }
     let html = ''
-    let result = await pool.restaurante.query(`SELECT * FROM productos`);
+    let result = await pool.restaurante.query(`SELECT * FROM productos ORDER BY nombre_producto`);
     result.forEach(producto =>{
         html = html + ` <tr id="orden">
                             <td class="hidden">${producto.id}</td>
